@@ -46,7 +46,15 @@ parser.add_option("--no-extract-audio", dest="extractaudio",
 
 
 #Base vars
-bookmarksfile = open(options.bookmarksfilename)
+try:
+    bookmarksfile = open(options.bookmarksfilename)
+except (TypeError):
+    print '''No bookmarks file specified'''
+    exit(1)
+except (IOError):
+    print '''Bookmarks file %s not found''' % options.bookmarksfilename
+    exit(1)
+
 rawdata = bookmarksfile.read()
 data = BeautifulSoup(rawdata)
 links = data.find_all('a')
