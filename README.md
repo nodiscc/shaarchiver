@@ -27,3 +27,8 @@ Press Ctrl-C to quit.
 ```
 
 Resource usage:
+
+
+## Bugs/ feature requests / discussion
+
+https://telecom.dmz.se/bugs/warchiver/issues/

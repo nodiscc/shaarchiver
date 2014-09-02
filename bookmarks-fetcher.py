@@ -11,19 +11,21 @@
 #TODO: if link has a numeric tag (d1, d2, d3) and one of the above, recursively follow links restricted to the domain/directory and download them.
 #TODO: for tag 'images', download images embedded in pages (use patterns like wp-contents/uploads/*.jpg, i.imgur.com/*.jpg)
 
-
+#TODO: add a command line switch to use mp3 output (best by default)
 
 import os
+import poil
 import sys
 import time
 from bs4 import BeautifulSoup
 from subprocess import call
 from optparse import OptionParser
 
-
+###############################################################################
 #Parse command line options
+
 parser = OptionParser()
-parser.add_option("-t", "--tag", dest="usertag", 
+parser.add_option("-t", "--tag", dest="usertag",
                 action="store", type="string",
                 help="download files only for specified TAG", metavar="TAG")
 parser.add_option("-f", "--file", dest="bookmarksfilename",
@@ -39,11 +41,11 @@ extractaudio = True
 parser.add_option("--no-extract-audio", dest="extractaudio",
                 action="store_false",
                 help="do not extract audio from downloaded music")
-#TODO: add a command line switch to use mp3 output (best by default)
+
 
 (options, args) = parser.parse_args()
 
-
+###############################################################################
 
 #Base vars
 try:
@@ -69,10 +71,11 @@ if downloaddir_exists == False:
 
 
 
-
+###############################################################################
+#Catch em all
 
 os.chdir(downloaddir)
-#Catch em all
+
 print '[html extractor] Getting files tagged %s...' % options.usertag
 for item in links:
     if options.usertag in item.get('tags') and 'nodl' not in item.get('tags'):
