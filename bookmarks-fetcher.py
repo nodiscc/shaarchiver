@@ -51,10 +51,12 @@ parser.add_option("--no-extract-audio", dest="extractaudio",
 try:
     bookmarksfile = open(options.bookmarksfilename)
 except (TypeError):
-    print '''No bookmarks file specified'''
+    print '''Error: No bookmarks file specified'''
+    parser.print_help()
     exit(1)
 except (IOError):
-    print '''Bookmarks file %s not found''' % options.bookmarksfilename
+    print '''Error: Bookmarks file %s not found''' % options.bookmarksfilename
+    parser.print_help()
     exit(1)
 
 rawdata = bookmarksfile.read()
