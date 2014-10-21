@@ -14,7 +14,6 @@
 #TODO: add a command line switch to use mp3 output (best by default)
 
 import os
-import poil
 import sys
 import time
 from bs4 import BeautifulSoup
@@ -91,11 +90,11 @@ for item in links:
 
         if extractaudio == True:
             if options.usertag == 'music' or options.usertag == 'musique':
-                call(["youtube-dl", "-q", "--console-title", "--add-metadata",
+                call(["youtube-dl", "-q", "--continue", "--ignore-errors", "--console-title", "--add-metadata",
                     "--extract-audio", "--audio-quality", "0", item.get('href')])
 
 
         else:
-            call(["youtube-dl", "-q", "--console-title",  "--add-metadata", item.get('href')])
+            call(["youtube-dl", "-q", "--continue", "--ignore-errors", "--console-title",  "--add-metadata", item.get('href')])
             #TODO: output a file containing URLs for which youtube-dl failed
 
