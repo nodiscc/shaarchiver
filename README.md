@@ -8,3 +8,7 @@ Status: **draft**. Use at your own risk
 
 #### Bugs/feature requests/discussion
  * https://github.com/nodiscc/shaarchiver/issues/
+
+#### Usage
+    ./export-shaarli.py #download HTML export from your shaarli
+    ./bookmarks-fetcher.py #download and archive pages/media in your HTML export
