@@ -1,0 +1,3 @@
+[submodule "modules/imgur-album-downloader"]
+	path = modules/imgur-album-downloader
+	url = https://github.com/alexgisby/imgur-album-downloader/
