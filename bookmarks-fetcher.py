@@ -20,6 +20,13 @@ from bs4 import BeautifulSoup
 from subprocess import call
 from optparse import OptionParser
 
+
+###############################
+first_level_tags = [lecture, doc, music, musique, video]
+second_level_tags = [books, cuisine, blues, hiphop, electronic, shortfilm, documentaire, films]
+extract_audio_for = [samples, music]
+no_download_tag = "nodl"
+
 ###############################################################################
 #Parse command line options
 
@@ -36,10 +43,13 @@ parser.add_option("-d", "--destination", dest="destdir",
 parser.add_option("-m", "--markdown", dest="markdown",
                 action="store_true", default="False",
                 help="create a summary of files with markdown")
-extractaudio = True
-parser.add_option("--no-extract-audio", dest="extractaudio",
-                action="store_false",
-                help="do not extract audio from downloaded music")
+parser.add_option("-n", "--no-download", dest="download",
+                action="store_false", default="True",
+                help="do not download files")
+# extractaudio = True
+# parser.add_option("--no-extract-audio", dest="extractaudio",
+#                 action="store_false",
+#                 help="do not extract audio from downloaded music")
 
 
 (options, args) = parser.parse_args()
@@ -65,36 +75,83 @@ curdate = time.strftime('%Y-%m-%d_%H%M')
 downloaddir = options.destdir + "/" + options.usertag
 markdownoutfile = downloaddir + "/" + "links-" + curdate + ".md"
 
-#Check and create files/directories
-downloaddir_exists = os.access(downloaddir, os.F_OK)
-if downloaddir_exists == False:
+#Create files/directories
+try:
     os.makedirs(downloaddir)
+    os.makedirs(downloaddir + '/media/')
+
 
 
 
 ###############################################################################
 #Catch em all
 
-os.chdir(downloaddir)
+#os.chdir(downloaddir)
 
-print '[html extractor] Getting files tagged %s...' % options.usertag
-for item in links:
-    if options.usertag in item.get('tags') and 'nodl' not in item.get('tags'):
-        print ' * Downloading %s [%s]' % (item.contents[0], item.get('href'))
+if 'options.usertag' in locals():
+    mode = get_single_tag
+else:
+    mode = get_all_tags
 
-        #Output markdown if needed #TODO
-        if options.markdown == True:
-            outitem = " * [" + item.contents[0] + "](" + item.get('href') + ")" + " `@" + item.get('tags') + "`"
-            print outitem #TODO: print to outfile
-
-
-        if extractaudio == True:
-            if options.usertag == 'music' or options.usertag == 'musique':
-                call(["youtube-dl", "-q", "--continue", "--ignore-errors", "--console-title", "--add-metadata",
-                    "--extract-audio", "--audio-quality", "0", item.get('href')])
+if mode = get_single_tag:
+    get_single_tag()
+elif mode = get_all_tags:
+    get_all_tags()
 
 
-        else:
-            call(["youtube-dl", "-q", "--continue", "--ignore-errors", "--console-title",  "--add-metadata", item.get('href')])
-            #TODO: output a file containing URLs for which youtube-dl failed
+def gen_markdown():
+    outitem = " * [" + item.contents[0] + "](" + item.get('href') + ")" + " `@" + item.get('tags') + "`"
+    print outitem #TODO: print to outfile
+
+
+
+def get_single_tag():
+    print '[html extractor] Getting files tagged %s...' % options.usertag
+
+    #for each item, define if it has the specified tag, if yes, add it to the download queue
+
+
+    for item in links:
+        if options.usertag in item.get('tags') and no_download_tag not in item.get('tags'):
+            #todo: generate a download_queue list first, call this later on every item of download_queue
+            print ' * Downloading %s [%s]' % (item.contents[0], item.get('href'))
+
+
+
+
+            #find item type
+            #if it is in list of yt-dl supported sites 
+                #TODO: list of yt-dl supported domains
+                #TODO: match url against the list
+                #and in is tagged with the extract_audio_for tag
+                    #then type=audio
+                #else type=media
+            #else it's not in yt-dl supported sites, type=page
+
+            #define item's output dir
+            #if it has type=media or audioduse media as 0-level dir, else use pages
+            #https://stackoverflow.com/questions/3697432/python-how-to-find-list-intersection
+            #if it has one tag that matches an item from the first_level_tags list, use this as first level
+                #if it has one that matches an item in second_level_tag, use this as first level
+                #else use other as second level
+            #if it has no match, use other as first level
+
+            #if type=audio, download and extract audio
+            #if type=media, download with yt dl
+            #if type=page, wget
+            #for every type, generate markdown
+            if options.markdown == True:
+                gen_markdown()
+
+
+
+            # if extractaudio == True:
+            #     if options.usertag == 'music' or options.usertag == 'musique':
+            #         call(["youtube-dl", "-q", "--continue", "--ignore-errors", "--console-title", "--add-metadata",
+            #             "--extract-audio", "--audio-quality", "best", "-o", downloaddir + "/media/##### TTTTTAGGGGGG ######%(title)s-%(id)s.%(ext)" item.get('href')])
+            #             # -f bestaudio should work
+
+            # else:
+            #     call(["youtube-dl", "-q", "--continue", "--ignore-errors", "--console-title",  "--add-metadata", item.get('href')])
+            #     #TODO: output a file containing URLs for which youtube-dl failed
 
