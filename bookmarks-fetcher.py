@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #
+# -*- coding: utf8 -*-
 #TODO: detect if bookmarks filename has correct format
 #TODO: support plain text (not html) lists
 
@@ -12,20 +13,26 @@
 #TODO: for tag 'images', download images embedded in pages (use patterns like wp-contents/uploads/*.jpg, i.imgur.com/*.jpg)
 
 #TODO: add a command line switch to use mp3 output (best by default)
+#TODO: BUG: output path generation is broken
+#TODO: write a list of URLs fo which downloading has failed
+#TODO: check if usertag option works as expected
 
 import os
 import sys
 import time
+import glob
+import re
 from bs4 import BeautifulSoup
 from subprocess import call
 from optparse import OptionParser
 
 
 ###############################
-first_level_tags = [lecture, doc, music, musique, video]
-second_level_tags = [books, cuisine, blues, hiphop, electronic, shortfilm, documentaire, films]
-extract_audio_for = [samples, music]
-no_download_tag = "nodl"
+firstleveltags = ["lecture", "doc", "music", "musique", "video"]
+secondleveltags = ["books", "cuisine", "blues", "hiphop", "electronic", "shortfilm", "documentaire", "films"]
+download_media_for = ["musique", "music", "video", "samples"] #download multimedia content for these links
+extract_audio_for = ["samples", "music"] #only get audio (not video) links tagged with these tags
+no_download_tag = "nodl" #item will not be downloaded (external link only)
 
 ###############################################################################
 #Parse command line options
@@ -46,17 +53,14 @@ parser.add_option("-m", "--markdown", dest="markdown",
 parser.add_option("-n", "--no-download", dest="download",
                 action="store_false", default="True",
                 help="do not download files")
-# extractaudio = True
-# parser.add_option("--no-extract-audio", dest="extractaudio",
-#                 action="store_false",
-#                 help="do not extract audio from downloaded music")
-
 
 (options, args) = parser.parse_args()
 
-###############################################################################
 
-#Base vars
+#Check mandatory options
+if not options.destdir:
+    parser.print_help()
+    parser.error('No destination dir specified')
 try:
     bookmarksfile = open(options.bookmarksfilename)
 except (TypeError):
@@ -68,90 +72,177 @@ except (IOError):
     parser.print_help()
     exit(1)
 
-rawdata = bookmarksfile.read()
-data = BeautifulSoup(rawdata)
-links = data.find_all('a')
-curdate = time.strftime('%Y-%m-%d_%H%M')
-downloaddir = options.destdir + "/" + options.usertag
-markdownoutfile = downloaddir + "/" + "links-" + curdate + ".md"
-
-#Create files/directories
-try:
-    os.makedirs(downloaddir)
-    os.makedirs(downloaddir + '/media/')
-
-
-
 
 ###############################################################################
-#Catch em all
-
-#os.chdir(downloaddir)
-
-if 'options.usertag' in locals():
-    mode = get_single_tag
-else:
-    mode = get_all_tags
-
-if mode = get_single_tag:
-    get_single_tag()
-elif mode = get_all_tags:
-    get_all_tags()
 
 
-def gen_markdown():
-    outitem = " * [" + item.contents[0] + "](" + item.get('href') + ")" + " `@" + item.get('tags') + "`"
-    print outitem #TODO: print to outfile
+#TODO: Generate markdown
+#def gen_markdown():
+    #Base vars
+    #curdate = time.strftime('%Y-%m-%d_%H%M') #date
+    #markdownoutfile = downloaddir + "/" + "links-" + curdate + ".md" #markdown output file
+    #print "DEBUG: gen_markdown"
+    #outitem = " * [" + item.contents[0] + "](" + item.get('href') + ")" + " `@" + item.get('tags') + "`"
+    #print outitem
+
+
+def get_link_type(linkurl, linktags): #Find if an item is media, audio or a web page
+    print "DEBUG: get_link_type"
+
+    if len(linktags) == 0:
+        linktype = "page"
+    elif len(list(set(linktags).intersection(set(download_media_for)))) > 0:
+        linktype = "media"
+        if len(list(set(linktags).intersection(set(extract_audio_for)))) > 0:
+            linktype = "audio"
+    else:
+        linktype = "page"
+
+    print "DEBUG: detected linktype: %s" % linktype
+    return linktype
 
 
 
-def get_single_tag():
-    print '[html extractor] Getting files tagged %s...' % options.usertag
+def get_tag(linktags, taglist): #find item's first and second level tags (broken?)
+    intersection = (linktags and taglist)
+    if len(intersection) > 0:
+        firstleveltag = intersection[0]
+    else:
+        firstleveltag = "other"
 
-    #for each item, define if it has the specified tag, if yes, add it to the download queue
+    return firstleveltag
 
 
+
+def download_link(link): #elect the appropriate download cation for the link
+    print "DEBUG: download_link"
+    print ' * Downloading %s [%s]' % (link.contents[0], link.get('href'))
+    
+    linktags = link.get('tags')
+    if linktags is None:
+        linktags = list()
+    else:
+        linktags = linktags.split(',')
+
+    type = get_link_type(link.get('href'), linktags)
+    firstleveltag = get_tag(linktags, firstleveltags)
+    secondleveltag = get_tag(linktags, secondleveltags)
+    if type == "media":
+        ytdl_media(link)
+    elif type == "audio":
+        ytdl_audio(link)
+    elif type == "page":
+        wget_dl(link)
+
+    print "DEBUG: Type is %s" % type
+
+
+
+
+def do_download_queue(downloadqueue): #start markdown generation and download process if appropriate
+    print "DEBUG: do_download_queue"
+    #if options.markdown:
+        #gen_markdown(downloadqueue)
+
+    if options.download:
+        print "DEBUG: Downloading %s items" % len(downloadqueue)
+        for item in downloadqueue:
+            download_link(item)
+    else:
+        print "Downloading disabled, skipping."
+
+
+
+
+def get_output_dir(link): #generate an output path based on tags (broken?)
+    #should be options.destdir/linktype/firstleveltag/secondleveltag/
+    print "DEBUG: get_output_dir"
+    intersection = (link.get('tags').split(',') and firstleveltags)
+    if intersection != None:
+        firstleveltag = intersection[0]
+    else:
+        firstleveltag = "other"
+
+    intersection = (link.get('tags').split(',') and secondleveltags)
+    if intersection != None:
+        secondleveltag = intersection[0]
+    else:
+        secondleveltag = "other"
+
+    linktype = get_link_type(link.get('href'), link.get('tags').split(','))
+
+    return "%s/%s/%s/%s" % (options.destdir, linktype, firstleveltag, secondleveltag)
+
+
+
+
+def ytdl_media(link): #download a link using youtube-dl
+    print "DEBUG: ytdl_media"
+
+    outdir = get_output_dir(link)
+    try:
+        os.makedirs(outdir)
+    except:
+        pass
+
+    call(["youtube-dl", "--no-playlist", "--continue", "--ignore-errors", "--console-title", "--add-metadata", "--format", "best", link.get('href')], cwd=outdir)
+
+
+
+
+def ytdl_audio(link): #download a link using youtube-dl (audio only)
+    print "DEBUG: ytdl_audio"
+
+    outdir = get_output_dir(link)
+    try:
+        os.makedirs(outdir)
+    except:
+        pass
+
+    call(["youtube-dl", "--no-playlist", "--continue", "--ignore-errors", "--console-title", "--add-metadata", "--format", "bestaudio", link.get('href')], cwd=outdir)
+
+
+
+def wget_dl(link): #download a web page (TODO)
+    print "DEBUG: FSCK OFF"
+
+
+
+
+def gen_download_queue(links): #generate list of links to download
+    print "DEBUG: gen_download_queue"
+    downloadqueue = list()
     for item in links:
-        if options.usertag in item.get('tags') and no_download_tag not in item.get('tags'):
-            #todo: generate a download_queue list first, call this later on every item of download_queue
-            print ' * Downloading %s [%s]' % (item.contents[0], item.get('href'))
+        if options.usertag in locals():
+            if options.usertag in item.get('tags') and no_download_tag not in item.get('tags'): #TODO: move the no_download_tag check to do_download_queue else markdown will not be generated
+                downloadqueue.append(item)
+        else:
+            downloadqueue.append(item)
+
+    print "DEBUG: Got %s elements" % len(downloadqueue)
+    return downloadqueue
 
 
 
+def get_links(): #extract links from HTML file
+    print "DEBUG: get_links"
+    rawdata = bookmarksfile.read()
+    data = BeautifulSoup(rawdata)
+    links = data.find_all('a') #list of all links
 
-            #find item type
-            #if it is in list of yt-dl supported sites 
-                #TODO: list of yt-dl supported domains
-                #TODO: match url against the list
-                #and in is tagged with the extract_audio_for tag
-                    #then type=audio
-                #else type=media
-            #else it's not in yt-dl supported sites, type=page
-
-            #define item's output dir
-            #if it has type=media or audioduse media as 0-level dir, else use pages
-            #https://stackoverflow.com/questions/3697432/python-how-to-find-list-intersection
-            #if it has one tag that matches an item from the first_level_tags list, use this as first level
-                #if it has one that matches an item in second_level_tag, use this as first level
-                #else use other as second level
-            #if it has no match, use other as first level
-
-            #if type=audio, download and extract audio
-            #if type=media, download with yt dl
-            #if type=page, wget
-            #for every type, generate markdown
-            if options.markdown == True:
-                gen_markdown()
+    return links
 
 
+############################################################################
 
-            # if extractaudio == True:
-            #     if options.usertag == 'music' or options.usertag == 'musique':
-            #         call(["youtube-dl", "-q", "--continue", "--ignore-errors", "--console-title", "--add-metadata",
-            #             "--extract-audio", "--audio-quality", "best", "-o", downloaddir + "/media/##### TTTTTAGGGGGG ######%(title)s-%(id)s.%(ext)" item.get('href')])
-            #             # -f bestaudio should work
+def main():
+    print "DEBUG: main"
+    links = get_links()
+    downloadqueue = gen_download_queue(links)
+    do_download_queue(downloadqueue)
 
-            # else:
-            #     call(["youtube-dl", "-q", "--continue", "--ignore-errors", "--console-title",  "--add-metadata", item.get('href')])
-            #     #TODO: output a file containing URLs for which youtube-dl failed
+############################################################################
+
+main()
+
 
