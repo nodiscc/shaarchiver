@@ -1,12 +1,12 @@
 #!/usr/bin/python
 #
 # -*- coding: utf8 -*-
-#TODO: detect if bookmarks filename has correct format
 #TODO: support plain text (not html) lists
 
 #TODO: stream action: just play each element in mplayer using youtube-dl (do not download, play only)
 #TODO: mkplaylist action: same as stream, but just output the media urls to an .m3u file
-#TODO: markdown action: just send the relevant links to a nice markdown file, and convert it to HTML also
+#TODO: handle shaarli's self-posts (eg. ?lNXHUw as href)
+#TODO: append link descriptions as sub-list item (<DD> half-ass HTML tag)
 
 #TODO: fetch raw webpages for some predefined tags (doc, news, lecture, alire, wiki), see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
 #TODO: if link has a numeric tag (d1, d2, d3) and one of the above, recursively follow links restricted to the domain/directory and download them.
@@ -27,7 +27,10 @@ from subprocess import call
 from optparse import OptionParser
 
 
-###############################
+###############################################################################
+######### CONFIG 
+###############################################################################
+
 firstleveltags = ["lecture", "doc", "music", "musique", "video"]
 secondleveltags = ["books", "cuisine", "blues", "hiphop", "electronic", "shortfilm", "documentaire", "films"]
 download_media_for = ["musique", "music", "video", "samples"] #download multimedia content for these links
@@ -35,8 +38,8 @@ extract_audio_for = ["samples", "music"] #only get audio (not video) links tagge
 no_download_tag = "nodl" #item will not be downloaded (external link only)
 
 ###############################################################################
-#Parse command line options
 
+#Parse command line options
 parser = OptionParser()
 parser.add_option("-t", "--tag", dest="usertag",
                 action="store", type="string",
@@ -59,8 +62,9 @@ parser.add_option("-n", "--no-download", dest="download",
 
 #Check mandatory options
 if not options.destdir:
+    print '''Error: No destination dir specified'''
     parser.print_help()
-    parser.error('No destination dir specified')
+    exit(1)
 try:
     bookmarksfile = open(options.bookmarksfilename)
 except (TypeError):
@@ -74,16 +78,27 @@ except (IOError):
 
 
 ###############################################################################
+######### FUNCTIONS
+###############################################################################
 
 
-#TODO: Generate markdown
-#def gen_markdown():
-    #Base vars
-    #curdate = time.strftime('%Y-%m-%d_%H%M') #date
-    #markdownoutfile = downloaddir + "/" + "links-" + curdate + ".md" #markdown output file
-    #print "DEBUG: gen_markdown"
-    #outitem = " * [" + item.contents[0] + "](" + item.get('href') + ")" + " `@" + item.get('tags') + "`"
-    #print outitem
+def gen_markdown(downloadqueue): #Generate markdown copy of all links
+    print "DEBUG: gen_markdown"
+    curdate = time.strftime('%Y-%m-%d_%H%M')
+    markdownoutfilename = options.destdir + "/" + "links-" + curdate + ".md"
+    print "DEBUG: date is %s, outfile is %s" % (curdate, markdownoutfilename)
+    
+    try:
+        os.makedirs(options.destdir)
+    except:
+        pass
+
+    markdownfile = open(markdownoutfilename, 'w+')
+    for item in downloadqueue:
+        print "DEBUG: current item: %s" % item
+        outitem = " * [" + item.contents[0] + "](" + item.get('href') + ")" + " `@" + unicode(item.get('tags')) + "`"
+        markdownfile.write(outitem.encode('utf-8') + "\n")
+    markdownfile.close()
 
 
 def get_link_type(linkurl, linktags): #Find if an item is media, audio or a web page
@@ -141,15 +156,15 @@ def download_link(link): #elect the appropriate download cation for the link
 
 def do_download_queue(downloadqueue): #start markdown generation and download process if appropriate
     print "DEBUG: do_download_queue"
-    #if options.markdown:
-        #gen_markdown(downloadqueue)
+    if options.markdown:
+        gen_markdown(downloadqueue)
 
     if options.download:
         print "DEBUG: Downloading %s items" % len(downloadqueue)
         for item in downloadqueue:
             download_link(item)
     else:
-        print "Downloading disabled, skipping."
+        print "Downloading disabled, skipping download."
 
 
 
@@ -244,5 +259,4 @@ def main():
 ############################################################################
 
 main()
-
-
+print "Done."
