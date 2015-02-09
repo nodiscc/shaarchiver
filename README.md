@@ -1,17 +1,24 @@
 # shaarchiver
-Archive your [Shaarli](https://github.com/sebsauvage/Shaarli) or [delicious](https://delicious.com) bookmarks.  
+Archive your [Shaarli](https://github.com/sebsauvage/Shaarli) or [delicious](https://delicious.com) bookmarks.
 Status: **draft**. Use at your own risk
 
  * Supports local Shaarli/delicious bookmark exports (Netscape HTML format)
  * Supports downloading exports from your own Shaarli install
  * Downloads all linked media for archiving, backup, offline use...
 
+### Installation
+ * `git clone https://github.com/nodiscc/shaarchiver` or download and extract the [zip archive](https://github.com/nodiscc/shaarchiver/archive/master.zip)
+ * install the required python modules: `python-bs4`
+
+
 #### Usage
+Edit the config variables at the beginning of bookmarks-fetcher.py if needed.
+
     ./export-shaarli.py #download HTML export from your shaarli
     ./bookmarks-fetcher.py #download and archive pages/media in your HTML export
 
 ```
- ↳ ./export-shaarli.py 
+ ↳ ./export-shaarli.py -h
 
 Options:
   -h, --help            show this help message and exit
@@ -27,8 +34,7 @@ Options:
 ```
 
 ```
- ↳ ./bookmarks-fetcher.py 
-Error: No bookmarks file specified
+ ↳ ./bookmarks-fetcher.py -h
 Usage: bookmarks-fetcher.py [options]
 
 Options:
