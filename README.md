@@ -8,7 +8,7 @@ Status: **draft**. Use at your own risk
 
 ### Installation
  * `git clone https://github.com/nodiscc/shaarchiver` or download and extract the [zip archive](https://github.com/nodiscc/shaarchiver/archive/master.zip)
- * install the required python modules: `python-bs4`
+ * install the required python modules: `python-bs4 python-requests`
 
 
 #### Usage
