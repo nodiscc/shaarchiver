@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+#
+# -*- coding: utf8 -*-
 #Description: backup bookmark exports (netscape HTML format) from a Shaarli (https://github.com/shaarli/Shaarli)
 #Copyright: (c) 2014 nodiscc <nodiscc@gmail.com>
 #License: MIT
@@ -11,6 +13,7 @@
 
 import os
 import sys
+import time
 from optparse import OptionParser
 import requests
 from bs4 import BeautifulSoup
@@ -54,10 +57,13 @@ if options.downloaddir is None:
     parser.error('no destination directory specified')
     exit(1)
 
-downloaddir_exists = os.access(downloaddir, os.F_OK)
+downloaddir_exists = os.access(options.downloaddir, os.F_OK)
 if downloaddir_exists == False:
-    os.makedirs(downloaddir)
+    os.makedirs(options.downloaddir)
 
+curdate = time.strftime('%Y-%m-%d_%H%M')
+outfilename = options.downloaddir + "bookmarks-all_" + curdate + ".html"
+outfile = open(outfilename, 'w+')
 
 #### Open a session to store the cookie, get the login page, and extract the token from HTML
 fetcher = requests.Session()
@@ -74,6 +80,8 @@ response = fetcher.post(options.url + '/?do=login', data=data, verify=False)
 
 #Get private bookmarks
 response = fetcher.get(options.url + '?do=export&what=private', verify=False)
-print response.text
+outfile.write(response.text.encode('utf-8'))
+outfile.close
+#print response.text
 
 #TODO: other bookmarks
