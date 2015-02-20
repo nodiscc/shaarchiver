@@ -69,7 +69,6 @@ if downloaddir_exists == False:
 
 curdate = time.strftime('%Y-%m-%d_%H%M')
 outfilename = options.downloaddir + "bookmarks-all_" + curdate + ".html"
-outfile = open(outfilename, 'w+')
 
 #### Open a session to store the cookie, get the login page, and extract the token from HTML
 fetcher = requests.Session()
@@ -86,6 +85,7 @@ response = fetcher.post(options.url + '/?do=login', data=data, verify=False) #TO
 
 #Get bookmarks
 response = fetcher.get(options.url + '?do=export&what=' + options.linktype, verify=False)
+outfile = open(outfilename, 'w+')
 outfile.write(response.text.encode('utf-8'))
 outfile.close
 
