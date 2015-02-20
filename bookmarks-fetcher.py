@@ -118,18 +118,20 @@ def get_link_type(linkurl, linktags): #Find if an item is media, audio or a web 
 
 
 
-def get_tag(linktags, taglist): #find item's first and second level tags (broken?)
+def get_tag(linktags, taglist): #find item's first and second level tags (TODO: BUG: broken)
+    print "DEBUG: get_tag"
     intersection = (linktags and taglist)
     if len(intersection) > 0:
         firstleveltag = intersection[0]
     else:
         firstleveltag = "other"
 
+    print "DEBUG: found FIRSTLEVELTAG: %s" % firstleveltag
     return firstleveltag
 
 
 
-def download_link(link): #elect the appropriate download cation for the link
+def download_link(link): #elect the appropriate download location for the link
     print "DEBUG: download_link"
     print ' * Downloading %s [%s]' % (link.contents[0], link.get('href'))
     
@@ -139,17 +141,17 @@ def download_link(link): #elect the appropriate download cation for the link
     else:
         linktags = linktags.split(',')
 
-    type = get_link_type(link.get('href'), linktags)
+    linktype = get_link_type(link.get('href'), linktags)
     firstleveltag = get_tag(linktags, firstleveltags)
     secondleveltag = get_tag(linktags, secondleveltags)
-    if type == "media":
+    if linktype == "media":
         ytdl_media(link)
-    elif type == "audio":
+    elif linktype == "audio":
         ytdl_audio(link)
-    elif type == "page":
+    elif linktype == "page":
         wget_dl(link)
 
-    print "DEBUG: Type is %s" % type
+    print "DEBUG: Linkype is %s" % linktype
 
 
 
