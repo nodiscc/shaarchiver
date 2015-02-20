@@ -186,7 +186,7 @@ def get_output_dir(link): #generate an output path based on tags (broken?)
 
     # linktype = get_link_type(link.get('href'), link.get('tags').split(','))
 
-    linktags = link.get('tags')
+    linktags = link.get('tags')  #TODO: move this to a separate function, call it everytime link.get('tags') is needed
     if linktags is None:
         linktags = list()
     else:
