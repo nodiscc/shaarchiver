@@ -95,7 +95,7 @@ def gen_markdown(downloadqueue): #Generate markdown copy of all links
 
     markdownfile = open(markdownoutfilename, 'w+')
     for item in downloadqueue:
-        print "DEBUG: current item: %s" % item
+        #print "DEBUG: current item: %s" % item
         outitem = " * [" + item.contents[0] + "](" + item.get('href') + ")" + " `@" + unicode(item.get('tags')) + "`"
         markdownfile.write(outitem.encode('utf-8') + "\n")
     markdownfile.close()
@@ -221,7 +221,7 @@ def ytdl_audio(link): #download a link using youtube-dl (audio only)
 
 
 def wget_dl(link): #download a web page (TODO)
-    print "DEBUG: FSCK OFF"
+    print "DEBUG: NOT IMPLEMENTED YET"
 
 
 
@@ -230,7 +230,9 @@ def gen_download_queue(links): #generate list of links to download
     print "DEBUG: gen_download_queue"
     downloadqueue = list()
     for item in links:
-        if options.usertag in locals():
+        if options.usertag:
+            print "DEBUG: only downloading if tagged %s" % options.usertag
+            print "DEBUG: item tags: %s" % item.get('tags') #TODO: BUG: replace all occurences of item.get('tags') with a function that returns an empty links if no tags found (currently it returns a NoneType)
             if options.usertag in item.get('tags') and no_download_tag not in item.get('tags'): #TODO: move the no_download_tag check to do_download_queue else markdown will not be generated
                 downloadqueue.append(item)
         else:
