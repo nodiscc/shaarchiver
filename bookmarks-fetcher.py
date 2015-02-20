@@ -142,8 +142,6 @@ def download_link(link): #elect the appropriate download location for the link
         linktags = linktags.split(',')
 
     linktype = get_link_type(link.get('href'), linktags)
-    firstleveltag = get_tag(linktags, firstleveltags)
-    secondleveltag = get_tag(linktags, secondleveltags)
     if linktype == "media":
         ytdl_media(link)
     elif linktype == "audio":
@@ -174,20 +172,35 @@ def do_download_queue(downloadqueue): #start markdown generation and download pr
 def get_output_dir(link): #generate an output path based on tags (broken?)
     #should be options.destdir/linktype/firstleveltag/secondleveltag/
     print "DEBUG: get_output_dir"
-    intersection = (link.get('tags').split(',') and firstleveltags)
-    if intersection != None:
-        firstleveltag = intersection[0]
+    # intersection = (link.get('tags').split(',') and firstleveltags)
+    # if intersection != None:
+    #     firstleveltag = intersection[0]
+    # else:
+    #     firstleveltag = "other"
+
+    # intersection = (link.get('tags').split(',') and secondleveltags)
+    # if intersection != None:
+    #     secondleveltag = intersection[0]
+    # else:
+    #     secondleveltag = "other"
+
+    # linktype = get_link_type(link.get('href'), link.get('tags').split(','))
+
+    linktags = link.get('tags')
+    if linktags is None:
+        linktags = list()
     else:
-        firstleveltag = "other"
+        linktags = linktags.split(',')
 
-    intersection = (link.get('tags').split(',') and secondleveltags)
-    if intersection != None:
-        secondleveltag = intersection[0]
+    linktags = link.get('tags')
+    if linktags is None:
+        linktags = list()
     else:
-        secondleveltag = "other"
+        linktags = linktags.split(',')
 
-    linktype = get_link_type(link.get('href'), link.get('tags').split(','))
-
+    linktype = get_link_type(link.get('href'), linktags)
+    firstleveltag = get_tag(linktags, firstleveltags)
+    secondleveltag = get_tag(linktags, secondleveltags)
     return "%s/%s/%s/%s" % (options.destdir, linktype, firstleveltag, secondleveltag)
 
 
