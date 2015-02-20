@@ -120,14 +120,14 @@ def get_link_type(linkurl, linktags): #Find if an item is media, audio or a web 
 
 def get_tag(linktags, taglist): #find item's first and second level tags (TODO: BUG: broken)
     print "DEBUG: get_tag"
-    intersection = (linktags and taglist)
+    intersection = list(set(linktags).intersection(set(taglist)))
     if len(intersection) > 0:
-        firstleveltag = intersection[0]
+        matchingtag = intersection[0]
     else:
-        firstleveltag = "other"
+        matchingtag = "other"
 
-    print "DEBUG: found FIRSTLEVELTAG: %s" % firstleveltag
-    return firstleveltag
+    print "DEBUG: found matching tag: %s" % matchingtag
+    return matchingtag
 
 
 
