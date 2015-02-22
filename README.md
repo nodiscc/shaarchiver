@@ -1,10 +1,10 @@
 # shaarchiver
-Archive your [Shaarli](https://github.com/sebsauvage/Shaarli) or [delicious](https://delicious.com) bookmarks.
+Archive your [Shaarli](https://github.com/shaarli/Shaarli) or [delicious](https://delicious.com) bookmarks.
 Status: **draft**. Use at your own risk
 
- * Supports local Shaarli/delicious bookmark exports (Netscape HTML format)
- * Supports downloading exports from your own Shaarli install
- * Downloads all linked media for archiving, backup, offline use...
+ * Downloads exports from your own Shaarli install
+ * Extract and archive links from Shaarli/delicious bookmark exports (Netscape HTML format)
+ * Downloads all linked media (audio/video) for archiving, backup, offline use... (uses [youtube-dl](https://github.com/rg3/youtube-dl/))
 
 ### Installation
  * `git clone https://github.com/nodiscc/shaarchiver` or download and extract the [zip archive](https://github.com/nodiscc/shaarchiver/archive/master.zip)
@@ -12,7 +12,7 @@ Status: **draft**. Use at your own risk
 
 
 #### Usage
-Edit the config variables at the beginning of bookmarks-fetcher.py if needed.
+Edit the config variables at the beginning of bookmarks-fetcher.py if needed, and run:
 
     ./export-shaarli.py #download HTML export from your shaarli
     ./bookmarks-fetcher.py #download and archive pages/media in your HTML export
@@ -52,11 +52,11 @@ Options:
  * https://github.com/nodiscc/shaarchiver/issues/
 
 #### Example output directory
-Here is what your backup directory should look like after archving some links:
+Here is what your backup directory should look like after archiving some links:
 
 ```
-~/git/shaarchiver (master *=)$
-▧ tree backups/
+ ↳ tree backups/
+
 backups/
 ├── audio
 │   ├── music
