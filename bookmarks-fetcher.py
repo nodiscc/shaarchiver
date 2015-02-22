@@ -37,7 +37,7 @@ from optparse import OptionParser
 ###############################################################################
 
 firstleveltags = ["lecture", "doc", "music", "musique", "video"]
-secondleveltags = ["books", "cuisine", "blues", "hiphop", "electronic", "shortfilm", "documentaire", "films"]
+secondleveltags = ["books", "cuisine", "samples", "blues", "hiphop", "electronic", "shortfilm", "documentaire", "films", "wtf", "news", "space", "technology", "games"]
 download_media_for = ["musique", "music", "video", "samples"] #download multimedia content for these links
 extract_audio_for = ["samples", "music"] #only get audio (not video) for links tagged with these tags
 no_download_tag = "nodl" #item will not be downloaded (only print external link)
