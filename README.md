@@ -19,17 +19,17 @@ Edit the config variables at the beginning of bookmarks-fetcher.py if needed.
 
 ```
  ↳ ./export-shaarli.py -h
+Usage: export-shaarli.py [options]
 
 Options:
   -h, --help            show this help message and exit
-  --html                download HTML bookmarks export
-  --rss                 download public bookmarks via RSS (no need to login)
-  --rss-private         also download private links via RSS
   --username=USERNAME   username for HTML and private links export
   --password=PASSWORD   password for HTML and private links export
   -d DOWNLOADDIR, --download-dir=DOWNLOADDIR
                         destination directory for bookmark backups
   -u URL, --url=URL     URL of your Shaarli (https://my.example.com/links)
+  -t TYPE, --type=TYPE  download links of TYPE (public, private or all)
+
 
 ```
 
@@ -44,7 +44,7 @@ Options:
   -d DIR, --destination=DIR
                         destination backup DIR
   -m, --markdown        create a summary of files with markdown
-  --no-extract-audio    do not extract audio from downloaded music
+  -n, --no-download     do not download files
 
 ```
 
