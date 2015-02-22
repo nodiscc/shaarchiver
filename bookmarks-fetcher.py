@@ -220,7 +220,7 @@ def ytdl_media(link): #download a link using youtube-dl
     except:
         pass
 
-    call(["youtube-dl", "--no-playlist", "--continue", "--ignore-errors", "--console-title", "--add-metadata", "--format", "best", link.get('href')], cwd=outdir)
+    call(["youtube-dl", "--no-playlist", "--flat-playlist", "--continue", "--ignore-errors", "--console-title", "--add-metadata", "--format", "best", link.get('href')], cwd=outdir)
 
 
 
@@ -234,7 +234,7 @@ def ytdl_audio(link): #download a link using youtube-dl (audio only)
     except:
         pass
 
-    call(["youtube-dl", "--no-playlist", "--continue", "--ignore-errors", "--console-title", "--add-metadata", "--format", "bestaudio", link.get('href')], cwd=outdir)
+    call(["youtube-dl", "--no-playlist", "--flat-playlist", "--continue", "--ignore-errors", "--console-title", "--add-metadata", "--format", "bestaudio", link.get('href')], cwd=outdir)
 
 
 
