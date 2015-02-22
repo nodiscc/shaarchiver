@@ -1,7 +1,12 @@
 #!/usr/bin/python
 #
 # -*- coding: utf8 -*-
+# Copyright (c) 2014-2015 nodiscc <nodiscc@gmail.com>
+# License: GNU GPLv3 (https://www.gnu.org/copyleft/gpl.html)
+#
+#
 #TODO: support plain text (not html) lists
+#TODO: bugs at https://github.com/nodiscc/shaarchiver/issues
 
 #TODO: stream action: just play each element in mplayer using youtube-dl (do not download, play only)
 #TODO: mkplaylist action: same as stream, but just output the media urls to an .m3u file
@@ -13,9 +18,9 @@
 #TODO: for tag 'images', download images embedded in pages (use patterns like wp-contents/uploads/*.jpg, i.imgur.com/*.jpg)
 
 #TODO: add a command line switch to use mp3 output (best by default)
-#TODO: BUG: output path generation is broken
 #TODO: write a list of URLs fo which downloading has failed
-#TODO: check if usertag option works as expected
+#TODO: usertag option seems broken. plz test.
+#TODO: add third-level tags
 
 import os
 import sys
