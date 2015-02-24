@@ -10,13 +10,11 @@
 
 #TODO: stream action: just play each element in mplayer using youtube-dl (do not download, play only)
 #TODO: mkplaylist action: same as stream, but just output the media urls to an .m3u file
-#TODO: handle shaarli's self-posts (eg. ?lNXHUw as href)
+#TODO: handle shaarli's self-posts (eg. ?lNXHUw as href) -> do not download them
 #TODO: append link descriptions as sub-list item (<DD> half-ass HTML tag)
-
-#TODO: fetch raw webpages for some predefined tags (doc, news, lecture, alire, wiki), see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
+#TODO: fetch raw webpages for some predefined tags (doc, news, lecture, alire, wiki), see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget, also see force_page_download_for)
 #TODO: if link has a numeric tag (d1, d2, d3) and one of the above, recursively follow links restricted to the domain/directory and download them.
 #TODO: for tag 'images', download images embedded in pages (use patterns like wp-contents/uploads/*.jpg, i.imgur.com/*.jpg)
-
 #TODO: add a command line switch to use mp3 output (best by default)
 #TODO: write a list of URLs fo which downloading has failed
 #TODO: usertag option seems broken. plz test.
@@ -40,6 +38,7 @@ firstleveltags = ["lecture", "doc", "video", "music", "musique"]
 secondleveltags = ["books", "cuisine", "samples", "blues", "hiphop", "electronic", "shortfilm", "documentaire", "films", "wtf", "news", "space", "technology", "games","triphop", "soundtrack", "dnb", "ambient", "jazz",]
 download_media_for = ["musique", "music", "video", "samples"] #download multimedia content for these links
 extract_audio_for = ["samples", "music"] #only get audio (not video) for links tagged with these tags
+force_page_download_for = ["index"]
 no_download_tag = "nodl" #item will not be downloaded (only print external link)
 
 ###############################################################################
@@ -123,7 +122,7 @@ def get_link_type(linkurl, linktags): #Find if an item is media, audio or a web 
 
 
 
-def get_tag(linktags, taglist): #find item's first and second level tags (TODO: BUG: broken)
+def get_tag(linktags, taglist): #find item's first and second level tags
     print "DEBUG: get_tag"
     intersection = list(set(linktags).intersection(set(taglist)))
     if len(intersection) > 0:
