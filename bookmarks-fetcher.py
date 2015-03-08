@@ -19,6 +19,7 @@
 #TODO: write a list of URLs fo which downloading has failed
 #TODO: usertag option seems broken. plz test.
 #TODO: add third-level tags
+#TODO: items that have both video and audio/music tags should be downloaded twice, 1 for video 1 for audio
 
 import os
 import sys
