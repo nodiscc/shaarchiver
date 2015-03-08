@@ -41,6 +41,7 @@ download_media_for = ["musique", "music", "video", "samples"] #download multimed
 extract_audio_for = ["samples", "music"] #only get audio (not video) for links tagged with these tags
 force_page_download_for = ["index"]
 no_download_tag = "nodl" #item will not be downloaded (only print external link)
+downloaded_filename = "downloaded.txt" #filename for the list of successfully downloaded links
 
 ###############################################################################
 
@@ -81,6 +82,7 @@ except (IOError):
     parser.print_help()
     exit(1)
 
+already_downloaded = open(options.destdir + "/" + downloaded_filename, "a+")
 
 ###############################################################################
 ######### FUNCTIONS
@@ -139,7 +141,11 @@ def get_tag(linktags, taglist): #find item's first and second level tags
 def download_link(link): #elect the appropriate download location for the link
     print "DEBUG: download_link"
     print ' * Downloading %s [%s]' % (link.contents[0], link.get('href'))
-    
+    debug_wait()
+
+
+
+    #Guess resource type and ruin appropriate download function
     linktags = link.get('tags')
     if linktags is None:
         linktags = list()
@@ -147,6 +153,7 @@ def download_link(link): #elect the appropriate download location for the link
         linktags = linktags.split(',')
 
     linktype = get_link_type(link.get('href'), linktags)
+    print "DEBUG: Linkype is %s" % linktype
     if linktype == "media":
         ytdl_media(link)
     elif linktype == "audio":
@@ -154,7 +161,8 @@ def download_link(link): #elect the appropriate download location for the link
     elif linktype == "page":
         wget_dl(link)
 
-    print "DEBUG: Linkype is %s" % linktype
+    already_downloaded.write(link.get('href') + "\n")
+
 
 
 
@@ -167,7 +175,16 @@ def do_download_queue(downloadqueue): #start markdown generation and download pr
     if options.download:
         print "DEBUG: Downloading %s items" % len(downloadqueue)
         for item in downloadqueue:
-            download_link(item)
+            #First check if item has already been downloaded or should be ignored
+            print "DEBUG: checking if %s has been downloaded" % item.get('href')
+            debug_wait()
+            if "\n" + item.get('href') in already_downloaded.read(): #TODO: only read() this once. DOES NOT WORK
+                print "Link %s has already been downloaded. Skipping." % item.get('href')
+            elif no_download_tag in item.get('tags'):
+                print "Link %s is tagged %s and will not be downloaded." % (item.get_link_type('href'), no_download_tag)
+                debug_wait()
+            else:
+                download_link(item)
     else:
         print "Downloading disabled, skipping download."
 
@@ -270,6 +287,9 @@ def get_links(): #extract links from HTML file
     return links
 
 
+def debug_wait():
+    raw_input("DEBUG: PRESS ENTER TO CONTINUE")
+
 ############################################################################
 
 def main():
@@ -280,5 +300,7 @@ def main():
 
 ############################################################################
 
+print already_downloaded.read()
+debug_wait()
 main()
 print "Done."
