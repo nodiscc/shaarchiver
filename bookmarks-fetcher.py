@@ -7,7 +7,7 @@
 #
 #TODO: support plain text (not html) lists
 #TODO: bugs at https://github.com/nodiscc/shaarchiver/issues
-
+#TODO: make sure links URIs are supported by wget (http(s) vs. magnet vs. javascript vs ftp)
 #TODO: stream action: just play each element in mplayer using youtube-dl (do not download, play only)
 #TODO: mkplaylist action: same as stream, but just output the media urls to an .m3u file
 #TODO: handle shaarli's self-posts (eg. ?lNXHUw as href) -> do not download them
@@ -20,6 +20,7 @@
 #TODO: usertag option seems broken. plz test.
 #TODO: add third-level tags
 #TODO: items that have both video and audio/music tags should be downloaded twice, 1 for video 1 for audio
+#TODO: don't use --no-playlist when item is tagged playlist, album...
 
 import os
 import sys
