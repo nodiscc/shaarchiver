@@ -130,16 +130,16 @@ def match_tags(linktags, matchagainst): # check if sets have a common element (b
 def check_dl(linktags, linkurl): # check if given link should be downloaded (bool)
     if options.download == False:
         return False
-        msg = "Download disabled, not downloading %s" % linkurl
+        msg = "[shaarchiver] Download disabled, not downloading %s" % linkurl
         print msg
         log.write(msg + "\n")
     elif match_tags(linktags, nodl_tag):
-        msg = "Link %s is tagged %s and will not be downloaded." % (linkurl, nodl_tag)
+        msg = "[shaarchiver] Link %s is tagged %s and will not be downloaded." % (linkurl, nodl_tag)
         print msg
         log.write(msg + "\n")
         return False 
     elif options.usertag and not match_tags(linktags, options.usertag):
-        msg = "Link %s is NOT tagged %s and will not be downloaded." % (linkurl, options.usertag)
+        msg = "[shaarchiver] Link %s is NOT tagged %s and will not be downloaded." % (linkurl, options.usertag)
         print msg
         log.write(msg + "\n")
         return False 
@@ -158,15 +158,15 @@ def gen_markdown(linktitle, linkurl, linktags): # Write markdown output to file
 def download_page(linkurl, linktitle, linktags):
     if check_dl(linktags, linkurl):
         if match_tags(linktags, force_page_download_for):
-            msg = "Force downloading page for %s" % linkurl
+            msg = "[shaarchiver] Force downloading page for %s" % linkurl
             print msg
             log.write(msg + "\n")
         elif match_tags(linktags, download_video_for) or match_tags(linktags, download_audio_for):
-            msg = "%s will only be searched for media. Not downloading page" % linkurl
+            msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
             print msg
             log.write(msg + "\n")
         else:
-            msg = "Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
+            msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
             #TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
             #TODO: if link has a numeric tag (d1, d2, d3), recursively follow links restricted to the domain/directory and download them.
             print msg
@@ -177,7 +177,7 @@ def download_page(linkurl, linktitle, linktags):
 def download_video(linkurl, linktags):
     if check_dl(linktags, linkurl):
         if match_tags(linktags, download_video_for):
-            msg = "Downloading video for %s" % linkurl
+            msg = "[shaarchiver] Downloading video for %s" % linkurl
             print msg
             log.write(msg + "\n")
             command = ["youtube-dl"] + ytdl_args + ["--format", "best",
@@ -190,7 +190,7 @@ def download_video(linkurl, linktags):
 def download_audio(linkurl, linktags):
     if check_dl(linktags, linkurl):
         if match_tags(linktags, download_audio_for):
-            msg = "Downloading audio for %s" % linkurl
+            msg = "[shaarchiver] Downloading audio for %s" % linkurl
             print msg
             log.write(msg + "\n")
             if options.mp3 == True:
@@ -218,7 +218,7 @@ def get_all_tags(alllinks):
 
 #######################################################################
 
-msg = 'Got %s links.' % len(alllinks)
+msg = '[shaarchiver] Got %s links.' % len(alllinks)
 print msg
 log.write(msg + "\n")
 if options.markdown:
