@@ -39,6 +39,7 @@ ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
 ytdl_args = ["--no-playlist",
             "--flat-playlist",
             "--continue",
+            #"--max-filesize", "100M",
             #"--rate-limit", "100K",
             "--ignore-errors",
             "--console-title",
@@ -59,6 +60,9 @@ parser.add_option("-d", "--destination", dest="destdir", action="store", type="s
 parser.add_option("-m", "--markdown", dest="markdown",
                 action="store_true", default="False",
                 help="create a summary of files with markdown")
+parser.add_option("-3", "--mp3", dest="mp3",
+                action="store_true", default="False",
+                help="Download audio as mp3 (or convert to mp3 after download)")
 parser.add_option("-n", "--no-download", dest="download",
                 action="store_false", default="True",
                 help="do not download files")
@@ -188,8 +192,8 @@ def download_audio(linkurl, linktags):
         if match_tags(linktags, download_audio_for):
             msg = "Downloading audio for %s" % linkurl
             print msg
-            log.write(msg = "\n")
-            if options.mp3:
+            log.write(msg + "\n")
+            if options.mp3 == True:
                 command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "mp3",
                         "--output", options.destdir + "/audio/mp3/" + "[" + ','.join(linktags) + "]" + ytdl_naming,
                         linkurl]
@@ -233,7 +237,7 @@ for link in alllinks:
     linktags = getlinktags(link)
     download_page(linkurl, linktitle, linktags)
     download_video(linkurl, linktags)
-    #download_audio
+    download_audio(linkurl, linktags)
     
 
 log.close()

@@ -43,7 +43,9 @@ Options:
   -f FILE, --file=FILE  source HTML bookmarks FILE
   -d DIR, --destination=DIR
                         destination backup DIR
-  -m, --markdown        create a summary of links using markdown syntax
+  -m, --markdown        create a summary of files with markdown
+  -3, --mp3             Download audio as mp3 (or convert to mp3 after
+                        download)
   -n, --no-download     do not download files
 ```
 
