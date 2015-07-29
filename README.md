@@ -1,6 +1,5 @@
 # shaarchiver
-Archive your [Shaarli](https://github.com/shaarli/Shaarli) or [delicious](https://delicious.com) bookmarks.
-Status: **draft**. Use at your own risk
+Archive your Firefox, [Shaarli](https://github.com/shaarli/Shaarli) or [delicious](https://delicious.com) bookmarks.
 
  * Downloads exports from your own Shaarli install
  * Extract and archive links from Shaarli/delicious bookmark exports (Netscape HTML format)
@@ -14,7 +13,7 @@ Status: **draft**. Use at your own risk
 ### Usage
 Edit the config variables at the beginning of `bookmarks-fetcher.py` if needed.
 
-#### Backup your bookmarks as HTML
+#### Backup your Shaarli bookmarks as an HTML file
 
 ```
  ↳ ./export-shaarli.py -h
@@ -32,7 +31,7 @@ Options:
 
 ```
 
-#### Archive link contents (pages, audio, video)
+#### Archive contents (pages, audio, video) for links in the HTML file
 
 ```
  ↳ ./bookmarks-fetcher.py -h
