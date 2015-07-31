@@ -7,6 +7,8 @@
 # TODO write link description to markdown, if any
 # TODO also (optional) download links in decsriptions
 # TODO catch youtube errors and write them in logfile
+# TODO allow to resume at given position without retrying previous links.
+#       write a resume file (bookmarks-all_2015-xx-xx_xx.html.resume) and add --resume option
 # TODO: write a list of URLs fo which downloading has failed
 # TODO: don't use --no-playlist when item is tagged playlist, album...
 # TODO: new action makeplaylist: create an m3U playlist for media, linking to the media url reported by youtube-dl --get-url
@@ -31,13 +33,13 @@ curdate = time.strftime('%Y-%m-%d_%H%M')
 ########################################
 
 # Config
-download_video_for = ["video", "documentaire"] #get video for links tagged with these tags
-download_audio_for = ["musique", "music", "samples"] #get audio for links tagged with these tags
-force_page_download_for = ["index", "doc", "lecture"]
+download_video_for = ["video", "documentaire"] # get video content for links with these tags
+download_audio_for = ["musique", "music", "samples"] # get audio content for links with these tags
+force_page_download_for = ["index", "doc", "lecture"] # force downloading page even if we found a media link
 nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
 url_blacklist = ["http://www.midomi.com/"] #links with these exact urls will not be downloaded 
 ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
-ytdl_args = ["--no-playlist",
+ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
             "--flat-playlist",
             "--continue",
             #"--max-filesize", "100M",

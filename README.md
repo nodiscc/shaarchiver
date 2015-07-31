@@ -11,8 +11,6 @@ Archive your Firefox, [Shaarli](https://github.com/shaarli/Shaarli) or [deliciou
 
 
 ### Usage
-Edit the config variables at the beginning of `bookmarks-fetcher.py` if needed.
-
 #### Backup your Shaarli bookmarks as an HTML file
 
 ```
@@ -32,6 +30,28 @@ Options:
 ```
 
 #### Archive contents (pages, audio, video) for links in the HTML file
+
+Edit the config variables in `bookmarks-fetcher.py` if needed.
+
+```python
+# Config
+download_video_for = ["video", "documentaire"] # get video content for links with these tags
+download_audio_for = ["musique", "music", "samples"] # get audio content for links with these tags
+force_page_download_for = ["index", "doc", "lecture"] # force downloading page even if we found a media link
+nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
+url_blacklist = ["http://www.midomi.com/"] #links with these exact urls will not be downloaded 
+ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
+ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
+            "--flat-playlist",
+            "--continue",
+            #"--max-filesize", "100M",
+            #"--rate-limit", "100K",
+            "--ignore-errors",
+            "--console-title",
+            "--add-metadata"]
+```
+
+Then run with appropriate options
 
 ```
  ↳ ./bookmarks-fetcher.py -h
