@@ -10,6 +10,7 @@
 # TODO allow to resume at given position without retrying previous links.
 #       write a resume file (bookmarks-all_2015-xx-xx_xx.html.resume) and add --resume option
 # TODO: write a list of URLs fo which downloading has failed
+# TODO: if download fails due to "unsupported url", download page
 # TODO: don't use --no-playlist when item is tagged playlist, album...
 # TODO: new action makeplaylist: create an m3U playlist for media, linking to the media url reported by youtube-dl --get-url
 # TODO: make sure links URIs are supported by wget (http(s) vs. magnet vs. javascript vs ftp)
