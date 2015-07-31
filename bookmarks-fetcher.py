@@ -25,6 +25,8 @@ import re
 from bs4 import BeautifulSoup
 from subprocess import call
 from optparse import OptionParser
+curdate = time.strftime('%Y-%m-%d_%H%M')
+
 
 ########################################
 
@@ -32,9 +34,8 @@ from optparse import OptionParser
 download_video_for = ["video", "documentaire"] #get video for links tagged with these tags
 download_audio_for = ["musique", "music", "samples"] #get audio for links tagged with these tags
 force_page_download_for = ["index", "doc", "lecture"]
-
-nodl_tag = ["nodl"] #items tagged with this tag will not be downloaded
-curdate = time.strftime('%Y-%m-%d_%H%M')
+nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
+url_blacklist = ["http://www.midomi.com/"] #links with these exact urls will not be downloaded 
 ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
 ytdl_args = ["--no-playlist",
             "--flat-playlist",
@@ -44,6 +45,7 @@ ytdl_args = ["--no-playlist",
             "--ignore-errors",
             "--console-title",
             "--add-metadata"]
+
 
 
 ########################################
@@ -70,6 +72,7 @@ parser.add_option("-n", "--no-download", dest="download",
 (options, args) = parser.parse_args()
 
 ########################################
+
 
 # Check mandatory options
 if not options.destdir:
@@ -121,28 +124,34 @@ def getlinktags(link):     # return tags for a link (list)
         linktags = linktags.split(',')
     return linktags
 
-def match_tags(linktags, matchagainst): # check if sets have a common element (bool)
+def match_list(linktags, matchagainst): # check if sets have a common element (bool)
         if bool(set(linktags) & set(matchagainst)):
             return True
         else:
             return False
 
 def check_dl(linktags, linkurl): # check if given link should be downloaded (bool)
-    if options.download == False:
+    if linkurl in url_blacklist:
+        msg = "[shaarchiver] Url %s is in blacklist. Not downloading item." % (linkurl)
+        print msg
+        log.write(msg + "\n")
+        return False
+    elif options.download == False:
         return False
         msg = "[shaarchiver] Download disabled, not downloading %s" % linkurl
         print msg
         log.write(msg + "\n")
-    elif match_tags(linktags, nodl_tag):
+    elif match_list(linktags, nodl_tag):
         msg = "[shaarchiver] Link %s is tagged %s and will not be downloaded." % (linkurl, nodl_tag)
         print msg
         log.write(msg + "\n")
         return False 
-    elif options.usertag and not match_tags(linktags, options.usertag):
+    elif options.usertag and not match_list(linktags, options.usertag):
         msg = "[shaarchiver] Link %s is NOT tagged %s and will not be downloaded." % (linkurl, options.usertag)
         print msg
         log.write(msg + "\n")
         return False 
+
     else:
         return True
 
@@ -157,11 +166,11 @@ def gen_markdown(linktitle, linkurl, linktags): # Write markdown output to file
 
 def download_page(linkurl, linktitle, linktags):
     if check_dl(linktags, linkurl):
-        if match_tags(linktags, force_page_download_for):
+        if match_list(linktags, force_page_download_for):
             msg = "[shaarchiver] Force downloading page for %s" % linkurl
             print msg
             log.write(msg + "\n")
-        elif match_tags(linktags, download_video_for) or match_tags(linktags, download_audio_for):
+        elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
             msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
             print msg
             log.write(msg + "\n")
@@ -176,7 +185,7 @@ def download_page(linkurl, linktitle, linktags):
 
 def download_video(linkurl, linktags):
     if check_dl(linktags, linkurl):
-        if match_tags(linktags, download_video_for):
+        if match_list(linktags, download_video_for):
             msg = "[shaarchiver] Downloading video for %s" % linkurl
             print msg
             log.write(msg + "\n")
@@ -189,7 +198,7 @@ def download_video(linkurl, linktags):
 
 def download_audio(linkurl, linktags):
     if check_dl(linktags, linkurl):
-        if match_tags(linktags, download_audio_for):
+        if match_list(linktags, download_audio_for):
             msg = "[shaarchiver] Downloading audio for %s" % linkurl
             print msg
             log.write(msg + "\n")
