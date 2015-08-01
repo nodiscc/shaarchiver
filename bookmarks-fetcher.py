@@ -5,19 +5,37 @@
 # Copyright (c) 2014-2015 nodiscc <nodiscc@gmail.com>
 
 # TODO write link description to markdown, if any
-# TODO also (optional) download links in decsriptions
-# TODO catch youtube errors and write them in logfile
-# TODO allow to resume at given position without retrying previous links.
-#       write a resume file (bookmarks-all_2015-xx-xx_xx.html.resume) and add --resume option
-# TODO: write a list of URLs fo which downloading has failed
-# TODO: if download fails due to "unsupported url", download page
-# TODO: don't use --no-playlist when item is tagged playlist, album...
-# TODO: new action makeplaylist: create an m3U playlist for media, linking to the media url reported by youtube-dl --get-url
-# TODO: make sure links URIs are supported by wget (http(s) vs. magnet vs. javascript vs ftp)
+# TODO download pages (wget, httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy)
+# TODO catch errors and write them in shaarchiver-errors-date.log
+# TODO write successfully downloaded urls in shaarchiver-archived-date.log
+#      if link has already been downloaded, skip download (--skip)
+#      if link has already been downloaded, just check headers with curl/ytdl and issue a warning if page is gone.
+# TODO if download fails due to "unsupported url", download page
+# TODO make sure links URIs are supported by wget (http(s) vs. magnet vs. javascript vs ftp)
+#      if link is a magnet, download it to $hash.magnet and write the uri inside
+#      write  next to title
+# TODO write a link to the local, archived file after the URL  for pages,  for video,  for audio
+# TODO don't use --no-playlist when item is tagged playlist, album...
+# TODO build HTML index (don't use mdwiki)
+#      Make it filterable/searchable https://github.com/krasimir/bubble.js
 # TODO Separate public/private link directories
-# TODO: bugs at https://github.com/nodiscc/shaarchiver/issues
-# TODO: support plain text (not html) lists
-# TODO: support special archivers for some sites (some url patterns should trigger a custom command, album extraction, etc)
+# TODO new action makeplaylist: create an m3U playlist for media, linking to the media url reported by youtube-dl --get-url
+# TODO filter ads from downloaded webpages (dnsmasq and host files)
+#       https://github.com/Andrwe/privoxy-blocklist/blob/master/privoxy-blocklist.sh
+#       patterns in ad-hosts.txt
+#       ublock hosts file list
+# TODO also (optional) download links in dessriptions
+# TODO  add --max-date --min-date options
+# TODO new action new action: upload to archive.org (public links only)
+#       saving pages to archive.org can be done with curl https://web.archive.org/save/$url
+#       add archive.org url to markdown output 'https://web.archive.org/web/' + item.get('href')
+#       Uploading media to archive.org can be done with https://github.com/Famicoman/ia-ul-from-youtubedl
+#       ability to mirror/re-post to other sites
+# TODO bugs at https://github.com/nodiscc/shaarchiver/issues
+# TODO support plain text (not html) lists
+# TODO scan for links/hashes/magnets inside description...
+# TODO add readability/page alteration features https://github.com/wallabag/wallabag/tree/master/inc/3rdparty/site_config
+# TODO support special archivers for some sites (some url patterns should trigger a custom command, album extraction, etc)
 
 
 import os
@@ -38,7 +56,6 @@ download_video_for = ["video", "documentaire"] # get video content for links wit
 download_audio_for = ["musique", "music", "samples"] # get audio content for links with these tags
 force_page_download_for = ["index", "doc", "lecture"] # force downloading page even if we found a media link
 nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
-url_blacklist = ["http://www.midomi.com/"] #links with these exact urls will not be downloaded 
 ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
 ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
             "--flat-playlist",
@@ -48,7 +65,10 @@ ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?qu
             "--ignore-errors",
             "--console-title",
             "--add-metadata"]
-
+url_blacklist = [ #links with these exact urls will not be downloaded
+                "http://www.midomi.com/",  #workaround for broken redirect
+                "http://broadcast.infomaniak.net/radionova-high.mp3" #prevents downloading live radio stream
+                ] 
 
 
 ########################################

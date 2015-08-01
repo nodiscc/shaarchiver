@@ -70,6 +70,7 @@ Options:
 ```
 
 #### Bugs/feature requests/discussion
+ * See `TODO` entries in `bookmark-fetcher.py`
  * https://github.com/nodiscc/shaarchiver/issues/
 
 #### Examples
