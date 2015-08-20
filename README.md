@@ -6,6 +6,7 @@ Work in progress - see [TODOs](bookmarks-fetcher.py)
  * Downloads HTML bookmark exports from your Shaarli instance.
  * Extract and archive links from Shaarli/delicious/Firefox bookmark exports (Netscape HTML format)
  * Downloads all linked media (audio/video) for archiving, backup, offline use... (uses [youtube-dl](https://github.com/rg3/youtube-dl/))
+ * Generates a markdown/HTML index of your bookmarks
  * Relies on bookmark tags for file naming and organization (see [examples](#examples))
 
 ### Installation
