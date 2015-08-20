@@ -1,9 +1,12 @@
 # shaarchiver
 Archive your Firefox, [Shaarli](https://github.com/shaarli/Shaarli) or [delicious](https://delicious.com) bookmarks.
 
- * Downloads exports from your own Shaarli install
- * Extract and archive links from Shaarli/delicious bookmark exports (Netscape HTML format)
+Work in progress - see [TODOs](bookmarks-fetcher.py)
+
+ * Downloads HTML bookmark exports from your Shaarli instance.
+ * Extract and archive links from Shaarli/delicious/Firefox bookmark exports (Netscape HTML format)
  * Downloads all linked media (audio/video) for archiving, backup, offline use... (uses [youtube-dl](https://github.com/rg3/youtube-dl/))
+ * Relies on bookmark tags for file naming and organization (see [examples](#examples))
 
 ### Installation
  * `git clone https://github.com/nodiscc/shaarchiver` or download and extract the [zip archive](https://github.com/nodiscc/shaarchiver/archive/master.zip)
@@ -31,6 +34,28 @@ Options:
 
 #### Archive contents (pages, audio, video) for links in the HTML file
 
+
+
+Run `bookmarks-fetcher.py` with appropriate options:
+
+```
+ ↳ ./bookmarks-fetcher.py -h
+Usage: bookmarks-fetcher.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -t TAG, --tag=TAG     download files only for specified TAG
+  -f FILE, --file=FILE  source HTML bookmarks FILE
+  -d DIR, --destination=DIR
+                        destination backup DIR
+  -m, --markdown        create a summary of files with markdown
+  -3, --mp3             Download audio as mp3 (or convert to mp3 after
+                        download)
+  -n, --no-download     do not download files
+```
+
+#### Configuration 
+
 Edit the config variables in `bookmarks-fetcher.py` if needed.
 
 ```python
@@ -51,25 +76,7 @@ ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?qu
             "--add-metadata"]
 ```
 
-Then run with appropriate options
-
-```
- ↳ ./bookmarks-fetcher.py -h
-Usage: bookmarks-fetcher.py [options]
-
-Options:
-  -h, --help            show this help message and exit
-  -t TAG, --tag=TAG     download files only for specified TAG
-  -f FILE, --file=FILE  source HTML bookmarks FILE
-  -d DIR, --destination=DIR
-                        destination backup DIR
-  -m, --markdown        create a summary of files with markdown
-  -3, --mp3             Download audio as mp3 (or convert to mp3 after
-                        download)
-  -n, --no-download     do not download files
-```
-
-#### Bugs/feature requests/discussion
+#### Bugs/feature requests/discussion/submit patches
  * See `TODO` entries in `bookmark-fetcher.py`
  * https://github.com/nodiscc/shaarchiver/issues/
 
