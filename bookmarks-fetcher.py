@@ -5,6 +5,7 @@
 # Copyright (c) 2014-2015 nodiscc <nodiscc@gmail.com>
 
 # TODO write link description to markdown, if any
+# TODO escape special markdown characters when writing descriptions
 # TODO download pages (wget, httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy)
 #      see also https://github.com/Modified/MHTifier/blob/master/mhtifier.py
 # TODO catch errors and write them in shaarchiver-errors-date.log
