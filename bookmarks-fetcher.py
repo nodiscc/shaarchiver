@@ -26,6 +26,7 @@
 #       https://github.com/Andrwe/privoxy-blocklist/blob/master/privoxy-blocklist.sh
 #       patterns in ad-hosts.txt
 #       ublock hosts file list
+#       https://github.com/StevenBlack/hosts
 # TODO also (optional) download links in dessriptions
 # TODO  add --max-date --min-date options
 # TODO new action new action: upload to archive.org (public links only)
