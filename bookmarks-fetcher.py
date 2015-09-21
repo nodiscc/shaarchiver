@@ -25,6 +25,7 @@
 # TODO filter ads from downloaded webpages (dnsmasq and host files)
 #       https://github.com/Andrwe/privoxy-blocklist/blob/master/privoxy-blocklist.sh
 #       patterns in ad-hosts.txt
+#       https://github.com/jacobsalmela/pi-hole
 #       ublock hosts file list
 #       https://github.com/StevenBlack/hosts
 # TODO also (optional) download links in dessriptions
