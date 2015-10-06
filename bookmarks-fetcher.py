@@ -47,6 +47,7 @@ import sys
 import time
 import glob
 import re
+from datetime import date, datetime
 from bs4 import BeautifulSoup
 from subprocess import call
 from optparse import OptionParser
@@ -95,7 +96,12 @@ parser.add_option("-3", "--mp3", dest="mp3",
 parser.add_option("-n", "--no-download", dest="download",
                 action="store_false", default="True",
                 help="do not download files")
-
+parser.add_option("--min-date", dest="minimum_date",
+                action="store", type="string",
+                help="earliest date from which the links should be exported (DD/MM/YYYY)")
+parser.add_option("--max-date", dest="maximum_date",
+                action="store", type="string",
+                help="latest date from which the links should be exporter (DD/MM/YYYY)")
 (options, args) = parser.parse_args()
 
 ########################################
@@ -116,6 +122,20 @@ except (IOError):
     print '''Error: Bookmarks file %s not found''' % options.bookmarksfilename
     parser.print_help()
     exit(1)
+
+options.compare_with_max = False
+options.compare_with_min = False
+options.should_compare_dates = False
+
+if options.minimum_date is not None:
+	options.should_compare_dates = True
+	options.compare_with_min = True
+	options.minimum_date_parsed = datetime.strptime(options.minimum_date, "%d/%m/%Y").date()
+
+if options.maximum_date is not None:
+	options.should_compare_dates = True
+	options.compare_with_max = True
+	options.maximum_date_parsed = datetime.strptime(options.maximum_date, "%d/%m/%Y").date()
 
 
 # Open files
@@ -260,20 +280,25 @@ log.write(msg + "\n")
 if options.markdown:
     markdown.write("## " + options.bookmarksfilename + '\n' + str(len(alllinks)) + " links\n\n") 
     markdown.write("```\n" + ' '.join(get_all_tags(alllinks)).encode('UTF-8') + "\n```\n\n")
-    for link in alllinks:
-        linkurl = link.get('href')
-        linktitle = link.contents[0]
-        linktags = getlinktags(link)
-        gen_markdown(linktitle, linkurl, linktags)
-    markdown.close()
 
 for link in alllinks:
-    linkurl = link.get('href')
-    linktitle = link.contents[0]
-    linktags = getlinktags(link)
-    download_page(linkurl, linktitle, linktags)
-    download_video(linkurl, linktags)
-    download_audio(linkurl, linktags)
-    
+	if options.should_compare_dates:
+		linkdate = date.fromtimestamp(float(link.get("add_date")))
+		if options.compare_with_min and (linkdate < options.minimum_date_parsed):
+			continue
+		if options.compare_with_max and (linkdate > options.maximum_date_parsed):
+			continue
 
-log.close()
+	linkurl = link.get('href')
+	linktitle = link.contents[0]
+	linktags = getlinktags(link)
+	download_page(linkurl, linktitle, linktags)
+	download_video(linkurl, linktags)
+	download_audio(linkurl, linktags)
+	if options.markdown:
+		gen_markdown(linktitle, linkurl, linktags)
+
+log.close()    
+if options.markdown:
+	markdown.close()
+
