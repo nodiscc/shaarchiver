@@ -51,9 +51,12 @@ from datetime import date, datetime
 from bs4 import BeautifulSoup
 from subprocess import call
 from optparse import OptionParser
+from collections import namedtuple
 curdate = time.strftime('%Y-%m-%d_%H%M')
 
-
+# Define a struct to hold link data
+# As a bonus, namedtuple is immutable, which is good because we never need to modify it
+Link = namedtuple("Link", "add_date href private tags title description")
 ########################################
 
 # Config
@@ -158,18 +161,33 @@ log = open(logfile, "a+")
 # Parse HTML
 rawdata = bookmarksfile.read()
 bsdata = BeautifulSoup(rawdata)
-alllinks = bsdata.find_all('a')
-
+alllinks = bsdata.find_all(["dt", "dd"])
 #############################################
 # Functions
 
-def getlinktags(link):     # return tags for a link (list)
-    linktags = link.get('tags')
-    if linktags is None:
-        linktags = list()
-    else:
-        linktags = linktags.split(',')
-    return linktags
+def get_link_list(links):
+	item_count = len(links)
+	link_list = list()
+	for i in range(0, item_count):
+		if links[i].name == "dd":
+			# We don't want to parse dd links, just find out if they're after a dt
+			continue
+
+		desc = ""
+		if i + 1 < item_count and links[i+1].name == "dd":
+			desc = links[i+1].contents[0]
+
+		subtag = links[i].find('a')
+		tags_as_list = subtag['tags'].split(',') if subtag['tags'] is not None or subtag['tags'] is not "" else list()
+		item = Link(add_date = subtag['add_date'],
+					href = subtag['href'],
+					private = subtag['private'] is '1',
+					tags = tags_as_list,
+					title = subtag.contents[0],
+					description = desc)
+		link_list.append(item)
+
+	return link_list
 
 def match_list(linktags, matchagainst): # check if sets have a common element (bool)
         if bool(set(linktags) & set(matchagainst)):
@@ -267,35 +285,35 @@ def debug_wait(msg):
 def get_all_tags(alllinks):
 	alltags = []
 	for link in alllinks:
-		linktags = getlinktags(link)
-		alltags = list(set(alltags + linktags))
+		alltags = list(set(alltags + link.tags))
 	return alltags
 
 
 #######################################################################
 
-msg = '[shaarchiver] Got %s links.' % len(alllinks)
+link_list = get_link_list(alllinks)
+
+msg = '[shaarchiver] Got %s links.' % len(link_list)
 print(msg)
 log.write(msg + "\n")
 if options.markdown:
-    markdown.write("## " + options.bookmarksfilename + '\n' + str(len(alllinks)) + " links\n\n")
-    markdown.write(("```\n".encode('UTF-8') + ' '.join(get_all_tags(alllinks)).encode('UTF-8') + "\n```\n\n".encode('UTF-8')).decode('UTF-8'))
+    markdown.write("## " + options.bookmarksfilename + '\n' + str(len(link_list)) + " links\n\n")
+    markdown.write(("```\n".encode('UTF-8') + ' '.join(get_all_tags(link_list)).encode('UTF-8') + "\n```\n\n".encode('UTF-8')).decode('UTF-8'))
     # Python2 & 3 compatibility. the str type has changed in python3.
 
-for link in alllinks:
+for link in link_list:
 	if options.should_compare_dates:
-		linkdate = date.fromtimestamp(float(link.get("add_date")))
+		linkdate = date.fromtimestamp(float(link.add_date))
 		if options.compare_with_min and (linkdate < options.minimum_date_parsed):
 			continue
 		if options.compare_with_max and (linkdate > options.maximum_date_parsed):
 			continue
 
-	linkurl = link.get('href')
-	linktitle = link.contents[0]
-	linktags = getlinktags(link)
-	download_page(linkurl, linktitle, linktags)
-	download_video(linkurl, linktags)
-	download_audio(linkurl, linktags)
+	linkurl = link.href
+	linktitle = link.title
+	download_page(linkurl, linktitle, link.tags)
+	download_video(linkurl, link.tags)
+	download_audio(linkurl, link.tags)
 	if options.markdown:
 		gen_markdown(linktitle, linkurl, linktags)
 
