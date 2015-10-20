@@ -73,7 +73,7 @@ ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?qu
 url_blacklist = [ #links with these exact urls will not be downloaded
                 "http://www.midomi.com/",  #workaround for broken redirect
                 "http://broadcast.infomaniak.net/radionova-high.mp3" #prevents downloading live radio stream
-                ] 
+                ]
 
 
 ########################################
@@ -109,17 +109,17 @@ parser.add_option("--max-date", dest="maximum_date",
 
 # Check mandatory options
 if not options.destdir:
-    print '''Error: No destination dir specified'''
+    print('''Error: No destination dir specified''')
     parser.print_help()
     exit(1)
 try:
     bookmarksfile = open(options.bookmarksfilename)
 except (TypeError):
-    print '''Error: No bookmarks file specified'''
+    print('''Error: No bookmarks file specified''')
     parser.print_help()
     exit(1)
 except (IOError):
-    print '''Error: Bookmarks file %s not found''' % options.bookmarksfilename
+    print('''Error: Bookmarks file %s not found''' % options.bookmarksfilename)
     parser.print_help()
     exit(1)
 
@@ -180,24 +180,24 @@ def match_list(linktags, matchagainst): # check if sets have a common element (b
 def check_dl(linktags, linkurl): # check if given link should be downloaded (bool)
     if linkurl in url_blacklist:
         msg = "[shaarchiver] Url %s is in blacklist. Not downloading item." % (linkurl)
-        print msg
+        print(msg)
         log.write(msg + "\n")
         return False
     elif options.download == False:
         return False
         msg = "[shaarchiver] Download disabled, not downloading %s" % linkurl
-        print msg
+        print(msg)
         log.write(msg + "\n")
     elif match_list(linktags, nodl_tag):
         msg = "[shaarchiver] Link %s is tagged %s and will not be downloaded." % (linkurl, nodl_tag)
-        print msg
+        print(msg)
         log.write(msg + "\n")
-        return False 
+        return False
     elif options.usertag and not match_list(linktags, options.usertag):
         msg = "[shaarchiver] Link %s is NOT tagged %s and will not be downloaded." % (linkurl, options.usertag)
-        print msg
+        print(msg)
         log.write(msg + "\n")
-        return False 
+        return False
 
     else:
         return True
@@ -215,17 +215,17 @@ def download_page(linkurl, linktitle, linktags):
     if check_dl(linktags, linkurl):
         if match_list(linktags, force_page_download_for):
             msg = "[shaarchiver] Force downloading page for %s" % linkurl
-            print msg
+            print(msg)
             log.write(msg + "\n")
         elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
             msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
-            print msg
+            print(msg)
             log.write(msg + "\n")
         else:
             msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
             #TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
             #TODO: if link has a numeric tag (d1, d2, d3), recursively follow links restricted to the domain/directory and download them.
-            print msg
+            print(msg)
             log.write(msg + "\n")
 
 
@@ -234,7 +234,7 @@ def download_video(linkurl, linktags):
     if check_dl(linktags, linkurl):
         if match_list(linktags, download_video_for):
             msg = "[shaarchiver] Downloading video for %s" % linkurl
-            print msg
+            print(msg)
             log.write(msg + "\n")
             command = ["youtube-dl"] + ytdl_args + ["--format", "best",
                     "--output", options.destdir +  "/video/" + "[" + ','.join(linktags) + "]" + ytdl_naming,
@@ -247,7 +247,7 @@ def download_audio(linkurl, linktags):
     if check_dl(linktags, linkurl):
         if match_list(linktags, download_audio_for):
             msg = "[shaarchiver] Downloading audio for %s" % linkurl
-            print msg
+            print(msg)
             log.write(msg + "\n")
             if options.mp3 == True:
                 command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "mp3",
@@ -275,10 +275,10 @@ def get_all_tags(alllinks):
 #######################################################################
 
 msg = '[shaarchiver] Got %s links.' % len(alllinks)
-print msg
+print(msg)
 log.write(msg + "\n")
 if options.markdown:
-    markdown.write("## " + options.bookmarksfilename + '\n' + str(len(alllinks)) + " links\n\n") 
+    markdown.write("## " + options.bookmarksfilename + '\n' + str(len(alllinks)) + " links\n\n")
     markdown.write("```\n" + ' '.join(get_all_tags(alllinks)).encode('UTF-8') + "\n```\n\n")
 
 for link in alllinks:
@@ -298,7 +298,6 @@ for link in alllinks:
 	if options.markdown:
 		gen_markdown(linktitle, linkurl, linktags)
 
-log.close()    
+log.close()
 if options.markdown:
 	markdown.close()
-
