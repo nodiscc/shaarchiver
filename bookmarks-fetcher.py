@@ -149,7 +149,7 @@ except:
 
 if options.markdown:
     markdownfile = options.destdir + "/links-" + curdate + ".md"
-    markdown = open(markdownfile, 'w+')
+    markdown = open(markdownfile, 'wt+')
 
 logfile = options.destdir + "/" + "shaarchiver-" + curdate + ".log"
 log = open(logfile, "a+")
@@ -205,7 +205,7 @@ def check_dl(linktags, linkurl): # check if given link should be downloaded (boo
 
 def gen_markdown(linktitle, linkurl, linktags): # Write markdown output to file
     mdline = " * [" + linktitle + "](" + linkurl + ")" + "`@" + ' @'.join(linktags) + "`"
-    markdown.write(mdline.encode('utf-8') + "\n")
+    markdown.write((mdline.encode('utf-8') + "\n".encode('UTF-8')).decode('UTF-8'))
     log.write("markdown generated for " + linkurl + str(linktags) + "\n")
 
 
@@ -279,7 +279,8 @@ print(msg)
 log.write(msg + "\n")
 if options.markdown:
     markdown.write("## " + options.bookmarksfilename + '\n' + str(len(alllinks)) + " links\n\n")
-    markdown.write("```\n" + ' '.join(get_all_tags(alllinks)).encode('UTF-8') + "\n```\n\n")
+    markdown.write(("```\n".encode('UTF-8') + ' '.join(get_all_tags(alllinks)).encode('UTF-8') + "\n```\n\n".encode('UTF-8')).decode('UTF-8'))
+    # Python2 & 3 compatibility. the str type has changed in python3.
 
 for link in alllinks:
 	if options.should_compare_dates:
