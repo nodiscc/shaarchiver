@@ -221,10 +221,12 @@ def check_dl(linktags, linkurl): # check if given link should be downloaded (boo
         return True
 
 
-def gen_markdown(linktitle, linkurl, linktags): # Write markdown output to file
-    mdline = " * [" + linktitle + "](" + linkurl + ")" + "`@" + ' @'.join(linktags) + "`"
-    markdown.write((mdline.encode('utf-8') + "\n".encode('UTF-8')).decode('UTF-8'))
-    log.write("markdown generated for " + linkurl + str(linktags) + "\n")
+def gen_markdown(link): # Write markdown output to file
+	mdline = " * [" + link.title + "](" + link.href + ")" + "`@" + ' @'.join(link.tags) + "`"
+	markdown.write((mdline.encode('utf-8') + "\n".encode('UTF-8')).decode('UTF-8'))
+	if link.description is not "":
+		markdown.write("```\n" + link.description.encode('UTF-8').decode('UTF-8') + "```\n")
+	log.write("markdown generated for " + linkurl + str(link.tags) + "\n")
 
 
 
@@ -315,7 +317,7 @@ for link in link_list:
 	download_video(linkurl, link.tags)
 	download_audio(linkurl, link.tags)
 	if options.markdown:
-		gen_markdown(linktitle, linkurl, linktags)
+		gen_markdown(link)
 
 log.close()
 if options.markdown:
