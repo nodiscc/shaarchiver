@@ -56,7 +56,7 @@ curdate = time.strftime('%Y-%m-%d_%H%M')
 
 # Define a struct to hold link data
 # As a bonus, namedtuple is immutable, which is good because we never need to modify it
-Link = namedtuple("Link", "add_date href private tags title description")
+Link = namedtuple("Link", "add_date href private tags title description is_magnet")
 ########################################
 
 # Config
@@ -184,7 +184,8 @@ def get_link_list(links):
 					private = subtag['private'] is '1',
 					tags = tags_as_list,
 					title = subtag.contents[0],
-					description = desc)
+					description = desc,
+					is_magnet = subtag["href"].startswith("magnet:"))
 		link_list.append(item)
 
 	return link_list
@@ -231,24 +232,40 @@ def gen_markdown(link): # Write markdown output to file
 
 
 
-def download_page(linkurl, linktitle, linktags):
-    if check_dl(linktags, linkurl):
-        if match_list(linktags, force_page_download_for):
-            msg = "[shaarchiver] Force downloading page for %s" % linkurl
-            print(msg)
-            log.write(msg + "\n")
-        elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
-            msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
-            print(msg)
-            log.write(msg + "\n")
-        else:
-            msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
-            #TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
-            #TODO: if link has a numeric tag (d1, d2, d3), recursively follow links restricted to the domain/directory and download them.
-            print(msg)
-            log.write(msg + "\n")
+def download_page(link):
+	if check_dl(link.tags, link.href):
+		if match_list(link.tags, force_page_download_for):
+			msg = "[shaarchiver] Force downloading page for %s" % link.href
+			print(msg)
+			log.write(msg + "\n")
+		elif match_list(link.tags, download_video_for) or match_list(link.tags, download_audio_for):
+			msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
+			print(msg)
+			log.write(msg + "\n")
+		else:
+			msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
+			#TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
+			#TODO: if link has a numeric tag (d1, d2, d3), recursively follow links restricted to the domain/directory and download them.
+			print(msg)
+			log.write(msg + "\n")
 
+		if link.is_magnet:
+			# We found a magnet link ! create a new file and write it
+			# Here's a lovely regex to retrieve the SHA hash from a magnet
+			# xt=.*:([^&]*)
+			# This works with the hash anywhere in the magnet, with btih: or sha1: schemes
+			matches = re.findall("xt=.*:([^&]*)", link.href)
+			if matches is None or len(matches) == 0:
+				msg = "[shaarchiver] Link appears to be a magnet, but no hash could be found. Not saving it"
+				print(msg)
+				log.write(msg + "\n")
+				pass
 
+			hash = matches[0]
+			msg = "[shaarchiver] Link is a magnet. Saving it to %s.magnet" % hash
+			handle = open(hash + ".magnet", "w+")
+			handle.write(link.href)
+			handle.close()
 
 def download_video(linkurl, linktags):
     if check_dl(linktags, linkurl):
@@ -313,7 +330,7 @@ for link in link_list:
 
 	linkurl = link.href
 	linktitle = link.title
-	download_page(linkurl, linktitle, link.tags)
+	download_page(link)
 	download_video(linkurl, link.tags)
 	download_audio(linkurl, link.tags)
 	if options.markdown:
