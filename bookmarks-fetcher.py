@@ -1,6 +1,6 @@
 #!/usr/bin/python
-#
 # -*- coding: utf8 -*-
+#
 # License: GNU GPLv3 (https://www.gnu.org/copyleft/gpl.html)
 # Copyright (c) 2014-2015 nodiscc <nodiscc@gmail.com>
 
