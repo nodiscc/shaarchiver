@@ -5,13 +5,14 @@
 # Copyright (c) 2014-2015 nodiscc <nodiscc@gmail.com>
 
 # TODO write link description to markdown, if any
-# TODO escape special markdown characters when writing descriptions
-# TODO add blacklist entries for youtube channels, soundcloud streams...
-# TODO download pages (wget, httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy)
-# TODO catch errors and write them in shaarchiver-errors-date.log
-# TODO write successfully downloaded urls in shaarchiver-archived-date.log
+# TODO write successfully downloaded urls in done.log
 #      if link has already been downloaded, skip download (--skip)
 #      if link has already been downloaded, just check headers with curl/ytdl and issue a warning if page is gone.
+# TODO catch errors and write them in shaarchiver-errors-date.log
+# TODO escape special markdown characters when writing descriptions
+# TODO [doc] add examples blacklist entries for youtube channels, soundcloud streams...
+# TODO download pages (wget, httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy)
+# TODO allow downloading/updating using a local youtube-dl copy
 # TODO if download fails due to "unsupported url", download page
 # TODO make sure links URIs are supported by wget (http(s) vs. magnet vs. javascript vs ftp)
 #      if link is a magnet, download it to $hash.magnet and write the uri inside
@@ -65,7 +66,7 @@ ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
 ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
             "--flat-playlist",
             "--continue",
-            #"--max-filesize", "100M",
+            "--max-filesize", "1200M",
             #"--rate-limit", "100K",
             "--ignore-errors",
             "--console-title",
