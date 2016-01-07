@@ -11,7 +11,7 @@
 # TODO catch errors and write them in shaarchiver-errors-date.log
 # TODO escape special markdown characters when writing descriptions
 # TODO [doc] add examples blacklist entries for youtube channels, soundcloud streams...
-# TODO download pages (wget, httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy)
+# TODO download pages (wget, httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy, https://github.com/lorien/grab)
 # TODO allow downloading/updating using a local youtube-dl copy
 # TODO if download fails due to "unsupported url", download page
 # TODO make sure links URIs are supported by wget (http(s) vs. magnet vs. javascript vs ftp)
