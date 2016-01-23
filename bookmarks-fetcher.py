@@ -12,6 +12,8 @@
 # TODO escape special markdown characters when writing descriptions
 # TODO [doc] add examples blacklist entries for youtube channels, soundcloud streams...
 # TODO download pages (wget, httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy, https://github.com/lorien/grab)
+#       https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
+# TODO if link has a numeric tag (d1, d2, d3), recursively follow links to htm,html,zip,png,jpg,wam,ogg,mp3,flac,avi,webm,ogv,mp4,pdf... restricted to the domain/directory and download them.
 # TODO allow downloading/updating using a local youtube-dl copy
 # TODO if download fails due to "unsupported url", download page
 # TODO make sure links URIs are supported by wget (http(s) vs. magnet vs. javascript vs ftp)
@@ -224,8 +226,7 @@ def download_page(linkurl, linktitle, linktags):
             log.write(msg + "\n")
         else:
             msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
-            #TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
-            #TODO: if link has a numeric tag (d1, d2, d3), recursively follow links restricted to the domain/directory and download them.
+            #TODO: TODO TODO DOWNLOAD PAGES
             print msg
             log.write(msg + "\n")
 
