@@ -89,4 +89,4 @@ outfile = open(outfilename, 'w+')
 outfile.write(response.text.encode('utf-8'))
 outfile.close
 
-print "bookmark export written to %s !" % outfilename
+print("bookmark export written to %s !" % outfilename)
