@@ -50,12 +50,24 @@ import sys
 import time
 import glob
 import re
+import codecs
 from datetime import date, datetime
 from bs4 import BeautifulSoup
 from subprocess import call
 from optparse import OptionParser
+from collections import namedtuple
 curdate = time.strftime('%Y-%m-%d_%H%M')
+# Define a struct to hold a link data
+# namedtuples are immutables
+Link = namedtuple("Link", "add_date href private tags title description")
 
+# Converts a string to its unicode representation
+def make_unicode(input):
+    if type(input) != unicode:
+        input =  input.decode('utf-8')
+        return input
+    else:
+        return input
 
 ########################################
 
@@ -76,7 +88,7 @@ ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?qu
 url_blacklist = [ #links with these exact urls will not be downloaded
                 "http://www.midomi.com/",  #workaround for broken redirect
                 "http://broadcast.infomaniak.net/radionova-high.mp3" #prevents downloading live radio stream
-                ] 
+                ]
 
 
 ########################################
@@ -112,17 +124,17 @@ parser.add_option("--max-date", dest="maximum_date",
 
 # Check mandatory options
 if not options.destdir:
-    print '''Error: No destination dir specified'''
+    print('''Error: No destination dir specified''')
     parser.print_help()
     exit(1)
 try:
     bookmarksfile = open(options.bookmarksfilename)
 except (TypeError):
-    print '''Error: No bookmarks file specified'''
+    print('''Error: No bookmarks file specified''')
     parser.print_help()
     exit(1)
 except (IOError):
-    print '''Error: Bookmarks file %s not found''' % options.bookmarksfilename
+    print('''Error: Bookmarks file %s not found''' % options.bookmarksfilename)
     parser.print_help()
     exit(1)
 
@@ -152,7 +164,7 @@ except:
 
 if options.markdown:
     markdownfile = options.destdir + "/links-" + curdate + ".md"
-    markdown = open(markdownfile, 'w+')
+    markdown = codecs.open(markdownfile,'wb+', encoding="utf-8")
 
 logfile = options.destdir + "/" + "shaarchiver-" + curdate + ".log"
 log = open(logfile, "a+")
@@ -161,7 +173,7 @@ log = open(logfile, "a+")
 # Parse HTML
 rawdata = bookmarksfile.read()
 bsdata = BeautifulSoup(rawdata)
-alllinks = bsdata.find_all('a')
+alllinks = bsdata.find_all(["dt", "dd"])
 
 #############################################
 # Functions
@@ -174,6 +186,35 @@ def getlinktags(link):     # return tags for a link (list)
         linktags = linktags.split(',')
     return linktags
 
+def get_link_list(links):
+    item_count = len(links)
+    link_list = list()
+    for i in range(0, item_count):
+        if links[i].name == "dd":
+            # We don't want to parse <DD>s, just find out if they're after a <DT>
+            continue
+
+        desc = ""
+        if i + 1 < item_count and links[i+1].name == "dd":
+            desc = links[i+1].contents[0]
+
+        subtag = links[i].find('a')
+        tags_as_list = list()
+        if subtag.has_attr('tags'):
+            tags_as_list = subtag['tags'].split(',')
+        
+        item = Link(add_date=subtag['add_date'],
+                    href=subtag['href'],
+                    private=subtag['private'] == "1",
+                    tags=tags_as_list,
+                    title=subtag.contents[0],
+                    description=desc)
+
+        link_list.append(item)
+
+    return link_list
+
+
 def match_list(linktags, matchagainst): # check if sets have a common element (bool)
         if bool(set(linktags) & set(matchagainst)):
             return True
@@ -182,64 +223,69 @@ def match_list(linktags, matchagainst): # check if sets have a common element (b
 
 def check_dl(linktags, linkurl): # check if given link should be downloaded (bool)
     if linkurl in url_blacklist:
-        msg = "[shaarchiver] Url %s is in blacklist. Not downloading item." % (linkurl)
-        print msg
+        msg = "[shaarchiver] Url %s is in blacklist. Not downloading item." % (make_unicode(linkurl))
+        print(msg)
         log.write(msg + "\n")
         return False
     elif options.download == False:
         return False
-        msg = "[shaarchiver] Download disabled, not downloading %s" % linkurl
-        print msg
+        msg = "[shaarchiver] Download disabled, not downloading %s" % make_unicode(linkurl)
+        print(msg)
         log.write(msg + "\n")
     elif match_list(linktags, nodl_tag):
-        msg = "[shaarchiver] Link %s is tagged %s and will not be downloaded." % (linkurl, nodl_tag)
-        print msg
+        msg = "[shaarchiver] Link %s is tagged %s and will not be downloaded." % (make_unicode(linkurl), nodl_tag)
+        print(msg)
         log.write(msg + "\n")
-        return False 
+        return False
     elif options.usertag and not match_list(linktags, options.usertag):
-        msg = "[shaarchiver] Link %s is NOT tagged %s and will not be downloaded." % (linkurl, options.usertag)
-        print msg
+        msg = "[shaarchiver] Link %s is NOT tagged %s and will not be downloaded." % (make_unicode(linkurl), options.usertag)
+        print(msg)
         log.write(msg + "\n")
-        return False 
+        return False
 
     else:
         return True
 
+def gen_markdown(link): # Write markdown output to file
+    tags = ""
+    if len(link.tags) > 0:
+        tags = ' @'
+    tags += ' @'.join(link.tags)
 
-def gen_markdown(linktitle, linkurl, linktags): # Write markdown output to file
-    mdline = " * [" + linktitle + "](" + linkurl + ")" + "`@" + ' @'.join(linktags) + "`"
-    markdown.write(mdline.encode('utf-8') + "\n")
-    log.write("markdown generated for " + linkurl + str(linktags) + "\n")
-
-
-
+    mdline = make_unicode(" * [" + link.title + "](" + link.href + ")" + tags + "`\n")
+    markdown.write(mdline)
+    if link.description != "":
+        desc = make_unicode(u"```\n{0}```\n".format(link.description))
+        markdown.write(desc)
+    log.write("markdown generated for " + link.href + str(link.tags) + "\n")
 
 def download_page(linkurl, linktitle, linktags):
     if check_dl(linktags, linkurl):
         if match_list(linktags, force_page_download_for):
             msg = "[shaarchiver] Force downloading page for %s" % linkurl
-            print msg
+            print(msg)
             log.write(msg + "\n")
         elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
             msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
-            print msg
+            print(msg)
             log.write(msg + "\n")
         else:
             msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
-            #TODO: TODO TODO DOWNLOAD PAGES
-            print msg
+            #TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
+            #TODO: if link has a numeric tag (d1, d2, d3), recursively follow links restricted to the domain/directory and download them.
+            print(msg)
             log.write(msg + "\n")
 
 
 
-def download_video(linkurl, linktags):
+def download_video(linkurl, linktags    ):
     if check_dl(linktags, linkurl):
         if match_list(linktags, download_video_for):
             msg = "[shaarchiver] Downloading video for %s" % linkurl
-            print msg
+            print(msg)
             log.write(msg + "\n")
             command = ["youtube-dl"] + ytdl_args + ["--format", "best",
-                    "--output", options.destdir +  "/video/" + "[" + ','.join(linktags) + "]" + ytdl_naming,
+                    "--output", options.destdir +  "/video/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
                     linkurl]
             call(command)
 
@@ -249,16 +295,16 @@ def download_audio(linkurl, linktags):
     if check_dl(linktags, linkurl):
         if match_list(linktags, download_audio_for):
             msg = "[shaarchiver] Downloading audio for %s" % linkurl
-            print msg
+            print(msg)
             log.write(msg + "\n")
             if options.mp3 == True:
                 command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "mp3",
-                        "--output", options.destdir + "/audio/mp3/" + "[" + ','.join(linktags) + "]" + ytdl_naming,
+                        "--output", options.destdir + "/audio/mp3/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
                         linkurl]
                 call(command)
             else:
                 command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "best",
-                        "--output", options.destdir + "/audio/" + "[" + ','.join(linktags) + "]" + ytdl_naming,
+                        "--output", options.destdir + "/audio/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
                         linkurl]
                 call(command)
 
@@ -269,21 +315,22 @@ def debug_wait(msg):
 def get_all_tags(alllinks):
 	alltags = []
 	for link in alllinks:
-		linktags = getlinktags(link)
-		alltags = list(set(alltags + linktags))
+		alltags = list(set(alltags + link.tags))
 	return alltags
 
 
 #######################################################################
-
-msg = '[shaarchiver] Got %s links.' % len(alllinks)
-print msg
+link_list = get_link_list(alllinks)
+msg = '[shaarchiver] Got %s links.' % len(link_list)
+print(msg)
 log.write(msg + "\n")
-if options.markdown:
-    markdown.write("## " + options.bookmarksfilename + '\n' + str(len(alllinks)) + " links\n\n") 
-    markdown.write("```\n" + ' '.join(get_all_tags(alllinks)).encode('UTF-8') + "\n```\n\n")
 
-for link in alllinks:
+if options.markdown:
+    markdown.write(make_unicode("## " + options.bookmarksfilename + '\n' + str(len(link_list)) + " links\n\n"))
+    taglist = make_unicode(' '.join(get_all_tags(link_list)))
+    markdown.write(make_unicode(u"```\n{0}\n```\n\n".format(taglist)))
+
+for link in link_list:
 	if options.should_compare_dates:
 		linkdate = date.fromtimestamp(float(link.get("add_date")))
 		if options.compare_with_min and (linkdate < options.minimum_date_parsed):
@@ -291,16 +338,12 @@ for link in alllinks:
 		if options.compare_with_max and (linkdate > options.maximum_date_parsed):
 			continue
 
-	linkurl = link.get('href')
-	linktitle = link.contents[0]
-	linktags = getlinktags(link)
-	download_page(linkurl, linktitle, linktags)
-	download_video(linkurl, linktags)
-	download_audio(linkurl, linktags)
+	download_page(link.href, link.title, link.tags)
+	download_video(link.href, link.tags)
+	download_audio(link.href, link.tags)
 	if options.markdown:
-		gen_markdown(linktitle, linkurl, linktags)
+		gen_markdown(link)
 
-log.close()    
+log.close()
 if options.markdown:
 	markdown.close()
-
