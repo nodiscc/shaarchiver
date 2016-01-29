@@ -4,7 +4,6 @@
 # License: GNU GPLv3 (https://www.gnu.org/copyleft/gpl.html)
 # Copyright (c) 2014-2015 nodiscc <nodiscc@gmail.com>
 
-# TODO write link description to markdown, if any
 # TODO write successfully downloaded urls in done.log
 #      if link has already been downloaded, skip download (--skip)
 #      if link has already been downloaded, just check headers with curl/ytdl and issue a warning if page is gone.
@@ -117,6 +116,9 @@ parser.add_option("--min-date", dest="minimum_date",
 parser.add_option("--max-date", dest="maximum_date",
                 action="store", type="string",
                 help="latest date from which the links should be exporter (DD/MM/YYYY)")
+parser.add_option("--no-skip", dest="no_skip",
+                action="store_true", default="False",
+                help="Do not skip downloads of links present in done.log")
 (options, args) = parser.parse_args()
 
 ########################################
@@ -143,14 +145,14 @@ options.compare_with_min = False
 options.should_compare_dates = False
 
 if options.minimum_date is not None:
-	options.should_compare_dates = True
-	options.compare_with_min = True
-	options.minimum_date_parsed = datetime.strptime(options.minimum_date, "%d/%m/%Y").date()
+    options.should_compare_dates = True
+    options.compare_with_min = True
+    options.minimum_date_parsed = datetime.strptime(options.minimum_date, "%d/%m/%Y").date()
 
 if options.maximum_date is not None:
-	options.should_compare_dates = True
-	options.compare_with_max = True
-	options.maximum_date_parsed = datetime.strptime(options.maximum_date, "%d/%m/%Y").date()
+    options.should_compare_dates = True
+    options.compare_with_max = True
+    options.maximum_date_parsed = datetime.strptime(options.maximum_date, "%d/%m/%Y").date()
 
 
 # Open files
@@ -167,8 +169,12 @@ if options.markdown:
     markdown = codecs.open(markdownfile,'wb+', encoding="utf-8")
 
 logfile = options.destdir + "/" + "shaarchiver-" + curdate + ".log"
-log = open(logfile, "a+")
+log = codecs.open(logfile, "a+", encoding="utf-8")
 
+log_done = codecs.open(options.destdir + "/done.log", "r+", encoding="utf-8")
+# Read already downloaded urls
+downloaded_urls = log_done.readlines()
+downloaded_urls = [x.replace('\n', '') for x in downloaded_urls]
 
 # Parse HTML
 rawdata = bookmarksfile.read()
@@ -177,7 +183,6 @@ alllinks = bsdata.find_all(["dt", "dd"])
 
 #############################################
 # Functions
-
 def getlinktags(link):     # return tags for a link (list)
     linktags = link.get('tags')
     if linktags is None:
@@ -221,32 +226,33 @@ def match_list(linktags, matchagainst): # check if sets have a common element (b
         else:
             return False
 
-def check_dl(linktags, linkurl): # check if given link should be downloaded (bool)
+
+def check_dl(linktags, linkurl):  # check if given link should be downloaded (bool)
+    allowed = True
     if linkurl in url_blacklist:
         msg = "[shaarchiver] Url %s is in blacklist. Not downloading item." % (make_unicode(linkurl))
-        print(msg)
-        log.write(msg + "\n")
-        return False
-    elif options.download == False:
-        return False
+        allowed = False
+    elif options.download is False:
         msg = "[shaarchiver] Download disabled, not downloading %s" % make_unicode(linkurl)
-        print(msg)
-        log.write(msg + "\n")
+        allowed = False
     elif match_list(linktags, nodl_tag):
         msg = "[shaarchiver] Link %s is tagged %s and will not be downloaded." % (make_unicode(linkurl), nodl_tag)
-        print(msg)
-        log.write(msg + "\n")
-        return False
+        allowed = False
     elif options.usertag and not match_list(linktags, options.usertag):
         msg = "[shaarchiver] Link %s is NOT tagged %s and will not be downloaded." % (make_unicode(linkurl), options.usertag)
+        allowed = False
+    elif match_list([linkurl], downloaded_urls) and not options.no_skip:
+        msg = "[shaarchiver] Link %s was already downloaded. Skipping." % make_unicode(linkurl)
+        allowed = False
+
+    if not allowed:
         print(msg)
         log.write(msg + "\n")
-        return False
 
-    else:
-        return True
+    return allowed
 
-def gen_markdown(link): # Write markdown output to file
+
+def gen_markdown(link):  # Write markdown output to file
     tags = ""
     if len(link.tags) > 0:
         tags = ' @'
@@ -259,64 +265,79 @@ def gen_markdown(link): # Write markdown output to file
         markdown.write(desc)
     log.write("markdown generated for " + link.href + str(link.tags) + "\n")
 
+
 def download_page(linkurl, linktitle, linktags):
-    if check_dl(linktags, linkurl):
-        if match_list(linktags, force_page_download_for):
-            msg = "[shaarchiver] Force downloading page for %s" % linkurl
-            print(msg)
-            log.write(msg + "\n")
-        elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
-            msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
-            print(msg)
-            log.write(msg + "\n")
+    if match_list(linktags, force_page_download_for):
+        msg = "[shaarchiver] Force downloading page for %s" % linkurl
+        print(msg)
+        log.write(msg + "\n")
+    elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
+        msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
+        print(msg)
+        log.write(msg + "\n")
+    else:
+        msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
+        # TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
+        # TODO: if link has a numeric tag (d1, d2, d3), recursively follow links restricted to the domain/directory and download them.
+        print(msg)
+        log.write(msg + "\n")
+    
+    if not options.no_skip:
+        log_done.write(linkurl + "\n")
+
+
+def download_video(linkurl, linktags):
+    if match_list(linktags, download_video_for):
+        msg = "[shaarchiver] Downloading video for %s" % linkurl
+        print(msg)
+        log.write(msg + "\n")
+        command = ["youtube-dl"] + ytdl_args + ["--format", "best",
+                "--output", options.destdir +  "/video/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
+                linkurl]
+        retcode = call(command)
+        # Add the url to the list of downloaded URLs if it was successful
+        if retcode == 0:
+            if not options.no_skip:
+                log_done.write(linkurl + "\n")
         else:
-            msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
-            #TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
-            #TODO: if link has a numeric tag (d1, d2, d3), recursively follow links restricted to the domain/directory and download them.
+            msg = "[shaarchiver] Download failed for %s" % linkurl
             print(msg)
             log.write(msg + "\n")
-
-
-
-def download_video(linkurl, linktags    ):
-    if check_dl(linktags, linkurl):
-        if match_list(linktags, download_video_for):
-            msg = "[shaarchiver] Downloading video for %s" % linkurl
-            print(msg)
-            log.write(msg + "\n")
-            command = ["youtube-dl"] + ytdl_args + ["--format", "best",
-                    "--output", options.destdir +  "/video/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
-                    linkurl]
-            call(command)
-
 
 
 def download_audio(linkurl, linktags):
-    if check_dl(linktags, linkurl):
-        if match_list(linktags, download_audio_for):
-            msg = "[shaarchiver] Downloading audio for %s" % linkurl
+    if match_list(linktags, download_audio_for):
+        msg = "[shaarchiver] Downloading audio for %s" % linkurl
+        print(msg)
+        log.write(msg + "\n")
+        if options.mp3 == True:
+            command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "mp3",
+                    "--output", options.destdir + "/audio/mp3/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
+                    linkurl]
+        else:
+            command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "best",
+                    "--output", options.destdir + "/audio/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
+                    linkurl]
+
+        retcode = call(command)
+        # Add the url to the list of downloaded URLs if it was successful
+        if retcode == 0:
+            if not options.no_skip:
+                log_done.write(linkurl + "\n")
+        else:
+            msg = "[shaarchiver] Download failed for %s" % linkurl
             print(msg)
             log.write(msg + "\n")
-            if options.mp3 == True:
-                command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "mp3",
-                        "--output", options.destdir + "/audio/mp3/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
-                        linkurl]
-                call(command)
-            else:
-                command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "best",
-                        "--output", options.destdir + "/audio/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
-                        linkurl]
-                call(command)
 
 
 def debug_wait(msg):
     raw_input("DEBUG: %s") % msg
 
 def get_all_tags(alllinks):
-	alltags = []
-	for link in alllinks:
-		alltags = list(set(alltags + link.tags))
-	return alltags
+    alltags = []
+    for link in alllinks:
+        alltags = list(set(alltags + link.tags))
+    return alltags
 
 
 #######################################################################
@@ -331,19 +352,22 @@ if options.markdown:
     markdown.write(make_unicode(u"```\n{0}\n```\n\n".format(taglist)))
 
 for link in link_list:
-	if options.should_compare_dates:
-		linkdate = date.fromtimestamp(float(link.get("add_date")))
-		if options.compare_with_min and (linkdate < options.minimum_date_parsed):
-			continue
-		if options.compare_with_max and (linkdate > options.maximum_date_parsed):
-			continue
+    if options.should_compare_dates:
+        linkdate = date.fromtimestamp(float(link.get("add_date")))
+        if options.compare_with_min and (linkdate < options.minimum_date_parsed):
+            continue
+        if options.compare_with_max and (linkdate > options.maximum_date_parsed):
+            continue
 
-	download_page(link.href, link.title, link.tags)
-	download_video(link.href, link.tags)
-	download_audio(link.href, link.tags)
-	if options.markdown:
-		gen_markdown(link)
+    if check_dl(link.tags, link.href):
+        download_page(link.href, link.title, link.tags)
+        download_video(link.href, link.tags)
+        download_audio(link.href, link.tags)
+
+    if options.markdown:
+        gen_markdown(link)
 
 log.close()
+log_done.close()
 if options.markdown:
-	markdown.close()
+    markdown.close()
