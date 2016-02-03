@@ -4,7 +4,6 @@
 # License: GNU GPLv3 (https://www.gnu.org/copyleft/gpl.html)
 # Copyright (c) 2014-2015 nodiscc <nodiscc@gmail.com>
 
-# TODO write link description to markdown, if any
 # TODO write successfully downloaded urls in done.log
 #      if link has already been downloaded, skip download (--skip)
 #      if link has already been downloaded, just check headers with curl/ytdl and issue a warning if page is gone.
@@ -32,7 +31,6 @@
 #       ublock hosts file list
 #       https://github.com/StevenBlack/hosts
 # TODO also (optional) download links in dessriptions
-# TODO  add --max-date --min-date options
 # TODO new action new action: upload to archive.org (public links only)
 #       saving pages to archive.org can be done with curl https://web.archive.org/save/$url
 #       add archive.org url to markdown output 'https://web.archive.org/web/' + item.get('href')
@@ -116,7 +114,7 @@ parser.add_option("--min-date", dest="minimum_date",
                 help="earliest date from which the links should be exported (DD/MM/YYYY)")
 parser.add_option("--max-date", dest="maximum_date",
                 action="store", type="string",
-                help="latest date from which the links should be exporter (DD/MM/YYYY)")
+                help="latest date from which the links should be exported (DD/MM/YYYY)")
 (options, args) = parser.parse_args()
 
 ########################################
@@ -252,7 +250,7 @@ def gen_markdown(link): # Write markdown output to file
         tags = ' @'
     tags += ' @'.join(link.tags)
 
-    mdline = make_unicode(" * [" + link.title + "](" + link.href + ")" + tags + "`\n")
+    mdline = make_unicode(" * [" + link.title + "](" + link.href + ")" + "`" + tags + "`\n")
     markdown.write(mdline)
     if link.description != "":
         desc = make_unicode(u"```\n{0}```\n".format(link.description))
