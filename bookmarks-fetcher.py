@@ -69,13 +69,14 @@ def make_unicode(input):
 
 ########################################
 
-# Config
+#Config
 download_video_for = ["video", "documentaire"] # get video content for links with these tags
 download_audio_for = ["musique", "music", "samples"] # get audio content for links with these tags
 force_page_download_for = ["index", "doc", "lecture"] # force downloading page even if we found a media link
 nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
-ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
-ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
+ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s' #naming pattern for downloaded media
+ytdl_args = [ #Youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
+            "--no-playlist", 
             "--flat-playlist",
             "--continue",
             "--max-filesize", "1200M",

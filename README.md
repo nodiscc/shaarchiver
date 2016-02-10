@@ -70,16 +70,21 @@ download_video_for = ["video", "documentaire"] # get video content for links wit
 download_audio_for = ["musique", "music", "samples"] # get audio content for links with these tags
 force_page_download_for = ["index", "doc", "lecture"] # force downloading page even if we found a media link
 nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
-url_blacklist = ["http://www.midomi.com/"] #links with these exact urls will not be downloaded 
-ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
-ytdl_args = ["--no-playlist", #see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
+ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s' #naming pattern for downloaded media
+ytdl_args = [ #Youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
+            "--no-playlist", 
             "--flat-playlist",
             "--continue",
-            #"--max-filesize", "100M",
+            "--max-filesize", "1200M",
             #"--rate-limit", "100K",
             "--ignore-errors",
             "--console-title",
             "--add-metadata"]
+url_blacklist = [ #links with these exact urls will not be downloaded
+                "http://www.midomi.com/",  #workaround for broken redirect
+                "http://broadcast.infomaniak.net/radionova-high.mp3" #prevents downloading live radio stream
+                ]
+
 ```
 
 #### Bugs/feature requests/discussion/submit patches
