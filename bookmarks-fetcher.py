@@ -39,6 +39,7 @@
 # TODO bugs at https://github.com/nodiscc/shaarchiver/issues
 # TODO support plain text (not html) lists
 # TODO scan for links/hashes/magnets inside description...
+# TODO GUI https://ipfs.pics/ipfs/Qmd7vy36VqSE3PqVSdjTMA2apfeboe49oJkVspKGdLpFd9, see python-wxgtk
 # TODO add readability/page alteration features https://github.com/wallabag/wallabag/tree/master/inc/3rdparty/site_config
 # TODO support special archivers for some sites (some url patterns should trigger a custom command, album extraction, etc)
 
