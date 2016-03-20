@@ -87,7 +87,8 @@ ytdl_args = [ #Youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cg
             "--add-metadata"]
 url_blacklist = [ #links with these exact urls will not be downloaded
                 "http://www.midomi.com/",  #workaround for broken redirect
-                "http://broadcast.infomaniak.net/radionova-high.mp3" #prevents downloading live radio stream
+                "http://broadcast.infomaniak.net/radionova-high.mp3", #prevents downloading live radio stream
+                "https://en.wikipedia.org/wiki/Youtube" #prevents downloading wikipedia spoken article
                 ]
 
 
