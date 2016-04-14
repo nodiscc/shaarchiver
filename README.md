@@ -1,7 +1,7 @@
 # shaarchiver
 Archive your Firefox, [Shaarli](https://github.com/shaarli/Shaarli) or [delicious](https://delicious.com) bookmarks.
 
-Work in progress - see [TODOs](bookmarks-fetcher.py)
+Work in progress - see [TODO.md](TODO.md)
 
  * Downloads HTML bookmark exports from your Shaarli instance.
  * Extract and archive links from Shaarli/delicious/Firefox bookmark exports (Netscape HTML format)

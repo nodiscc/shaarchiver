@@ -6,17 +6,7 @@
 #Copyright: (c) 2014 nodiscc <nodiscc@gmail.com>
 #License: MIT
 #Requires: python-bs4 python-requests
-#TODO: allow downloading links via RSS, if linktype=public, no password/username required
-#TODO:
-    # parser.add_option("--html", dest="html",
-    #                 action="store_true", default="False",
-    #                 help="download HTML bookmarks export")
-    # parser.add_option("--rss", dest="rss",
-    #                 action="store_true", default="False",
-    #                 help="download public bookmarks via RSS (no need to login)")
-    # parser.add_option("--rss-private", dest="rss-private",
-    #                 action="store_true", default="False",
-    #                 help="also download private links via RSS")
+
 
 
 import os
