@@ -15,9 +15,8 @@
 # TODO if link has a numeric tag (d1, d2, d3), recursively follow links to htm,html,zip,png,jpg,wam,ogg,mp3,flac,avi,webm,ogv,mp4,pdf... restricted to the domain/directory and download them.
 # TODO allow downloading/updating using a local youtube-dl copy
 # TODO if download fails due to "unsupported url", download page
-# TODO make sure links URIs are supported by wget (http(s) vs. magnet vs. javascript vs ftp)
-#      if link is a magnet, download it to $hash.magnet and write the uri inside
-#      write  next to title
+# TODO make sure links URIs are supported by wget (http(s) vs. javascript vs ftp)
+#      write   next to magnet links title
 # TODO write a link to the local, archived file after the URL  for pages,  for video,  for audio
 # TODO don't use --no-playlist when item is tagged playlist, album...
 # TODO build HTML index (don't use mdwiki)
@@ -58,7 +57,7 @@ from collections import namedtuple
 curdate = time.strftime('%Y-%m-%d_%H%M')
 # Define a struct to hold a link data
 # namedtuples are immutables
-Link = namedtuple("Link", "add_date href private tags title description")
+Link = namedtuple("Link", "add_date href private tags title description is_magnet")
 
 # Converts a string to its unicode representation
 def make_unicode(input):
@@ -144,14 +143,14 @@ options.compare_with_min = False
 options.should_compare_dates = False
 
 if options.minimum_date is not None:
-	options.should_compare_dates = True
-	options.compare_with_min = True
-	options.minimum_date_parsed = datetime.strptime(options.minimum_date, "%d/%m/%Y").date()
+    options.should_compare_dates = True
+    options.compare_with_min = True
+    options.minimum_date_parsed = datetime.strptime(options.minimum_date, "%d/%m/%Y").date()
 
 if options.maximum_date is not None:
-	options.should_compare_dates = True
-	options.compare_with_max = True
-	options.maximum_date_parsed = datetime.strptime(options.maximum_date, "%d/%m/%Y").date()
+    options.should_compare_dates = True
+    options.compare_with_max = True
+    options.maximum_date_parsed = datetime.strptime(options.maximum_date, "%d/%m/%Y").date()
 
 
 # Open files
@@ -209,7 +208,8 @@ def get_link_list(links):
                     private=subtag['private'] == "1",
                     tags=tags_as_list,
                     title=subtag.contents[0],
-                    description=desc)
+                    description=desc,
+                    is_magnet=subtag['href'].startswith("magnet:"))
 
         link_list.append(item)
 
@@ -262,14 +262,33 @@ def gen_markdown(link): # Write markdown output to file
 
 def download_page(linkurl, linktitle, linktags):
     if check_dl(linktags, linkurl):
-        if match_list(linktags, force_page_download_for):
+        if link.is_magnet:
+            # We found a magnet link ! create a new file and write it
+            # Here's a lovely regex to retrieve the SHA hash from a magnet
+            # xt=.*:([^&]*)
+            # This works with the hash anywhere in the magnet, with btih: or sha1: schemes
+            matches = re.findall("xt=.*:([^&]*)", link.href)
+            if matches is None or len(matches) == 0:
+                msg = "[shaarchiver] Link appears to be a magnet, but no hash could be found. Not saving it"
+                print(msg)
+                log.write(msg + "\n")
+                pass
+            hash = matches[0]
+            msg = "[shaarchiver] Link is a magnet. Saving it to %s.magnet" % hash
+            print(msg)
+            handle = open(options.destdir + "/" + hash + ".magnet", "w+")
+            handle.write(link.href)
+            handle.close()
+            
+        elif match_list(linktags, force_page_download_for):
             msg = "[shaarchiver] Force downloading page for %s" % linkurl
             print(msg)
             log.write(msg + "\n")
         elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
-            msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
-            print(msg)
-            log.write(msg + "\n")
+            pass
+            #msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
+            #print(msg)
+            #log.write(msg + "\n")
         else:
             msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
             #TODO: download pages,see https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
@@ -314,10 +333,10 @@ def debug_wait(msg):
     raw_input("DEBUG: %s") % msg
 
 def get_all_tags(alllinks):
-	alltags = []
-	for link in alllinks:
-		alltags = list(set(alltags + link.tags))
-	return alltags
+    alltags = []
+    for link in alllinks:
+        alltags = list(set(alltags + link.tags))
+    return alltags
 
 
 #######################################################################
@@ -332,19 +351,19 @@ if options.markdown:
     markdown.write(make_unicode(u"```\n{0}\n```\n\n".format(taglist)))
 
 for link in link_list:
-	if options.should_compare_dates:
-		linkdate = date.fromtimestamp(float(link.get("add_date")))
-		if options.compare_with_min and (linkdate < options.minimum_date_parsed):
-			continue
-		if options.compare_with_max and (linkdate > options.maximum_date_parsed):
-			continue
+    if options.should_compare_dates:
+        linkdate = date.fromtimestamp(float(link.get("add_date")))
+        if options.compare_with_min and (linkdate < options.minimum_date_parsed):
+            continue
+        if options.compare_with_max and (linkdate > options.maximum_date_parsed):
+            continue
 
-	download_page(link.href, link.title, link.tags)
-	download_video(link.href, link.tags)
-	download_audio(link.href, link.tags)
-	if options.markdown:
-		gen_markdown(link)
+    download_page(link.href, link.title, link.tags)
+    download_video(link.href, link.tags)
+    download_audio(link.href, link.tags)
+    if options.markdown:
+        gen_markdown(link)
 
 log.close()
 if options.markdown:
-	markdown.close()
+    markdown.close()
