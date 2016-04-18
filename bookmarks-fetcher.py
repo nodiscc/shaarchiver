@@ -133,7 +133,7 @@ if options.markdown:
 logfile = options.destdir + "/" + "shaarchiver-" + curdate + ".log"
 log = codecs.open(logfile, "a+", encoding="utf-8")
 
-log_done = codecs.open(options.destdir + "/done.log", "r+", encoding="utf-8")
+log_done = codecs.open(options.destdir + "/done.log", "a+", encoding="utf-8")
 #Read already downloaded URLs
 downloaded_urls = log_done.readlines()
 downloaded_urls = [x.replace('\n', '') for x in downloaded_urls]
