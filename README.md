@@ -67,7 +67,7 @@ Options:
 Edit the config variables in `bookmarks-fetcher.py` if needed.
 
 ```python
-# Config
+#Config
 download_video_for = ["video", "documentaire"] # get video content for links with these tags
 download_audio_for = ["musique", "music", "samples"] # get audio content for links with these tags
 force_page_download_for = ["index", "doc", "lecture"] # force downloading page even if we found a media link
@@ -84,9 +84,10 @@ ytdl_args = [ #Youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cg
             "--add-metadata"]
 url_blacklist = [ #links with these exact urls will not be downloaded
                 "http://www.midomi.com/",  #workaround for broken redirect
-                "http://broadcast.infomaniak.net/radionova-high.mp3" #prevents downloading live radio stream
+                "http://broadcast.infomaniak.net/radionova-high.mp3", #prevents downloading live radio stream
+                "https://en.wikipedia.org/wiki/Youtube", #prevents downloading wikipedia spoken article
+                "http://bandcamp.com/", "https://vimeo.com/", "https://www.youtube.com", "https://soundcloud.com" #don't try to download the site index
                 ]
-
 ```
 
 #### Bugs/feature requests/discussion/submit patches
