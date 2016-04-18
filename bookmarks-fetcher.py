@@ -257,8 +257,9 @@ def download_page(linkurl, linktitle, linktags):
         print(msg)
         log.write(msg + "\n")
 
-    if not options.no_skip:
-        log_done.write(linkurl + "\n")
+# TODO Re-enable this when page download is implemented
+#    if not options.no_skip:
+#        log_done.write(linkurl + "\n")
 
 
 def download_video(linkurl, linktags):
