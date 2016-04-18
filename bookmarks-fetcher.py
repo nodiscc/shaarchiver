@@ -78,6 +78,9 @@ parser.add_option("--min-date", dest="minimum_date",
 parser.add_option("--max-date", dest="maximum_date",
                 action="store", type="string",
                 help="latest date from which the links should be exported (DD/MM/YYYY)")
+parser.add_option("--no-skip"), dest="no_skip",
+                action="store_true", default="False",
+                help="Do not skip downloading links present in done.log")
 (options, args) = parser.parse_args()
 
 ########################################
@@ -128,7 +131,12 @@ if options.markdown:
     markdown = codecs.open(markdownfile,'wb+', encoding="utf-8")
 
 logfile = options.destdir + "/" + "shaarchiver-" + curdate + ".log"
-log = open(logfile, "a+")
+log = codecs.open(logfile, "a+", encoding="utf-8")
+
+log_done = codecs.open(options.destdir + "/done.log", "r+", encoding="utf-8")
+#Read already downloaded URLs
+downloaded_urls = log_done.readlines()
+downloaded_urls = [x.replace('\n', '') for x in downloaded_urls]
 
 
 # Parse HTML
@@ -184,36 +192,32 @@ def match_list(linktags, matchagainst): # check if sets have a common element (b
             return False
 
 def check_dl(linktags, linkurl): # check if given link should be downloaded (bool)
+    dl_allowed = True
     if linkurl in url_blacklist:
         msg = "[shaarchiver] Url %s is in blacklist. Not downloading item." % (make_unicode(linkurl))
-        print(msg)
-        log.write(msg + "\n")
-        return False
+        dl_allowed = False
     elif options.download == False:
-        return False
         msg = "[shaarchiver] Download disabled, not downloading %s" % make_unicode(linkurl)
-        print(msg)
-        log.write(msg + "\n")
+        dl_allowed = False
     elif match_list(linktags, nodl_tag):
         msg = "[shaarchiver] Link %s is tagged %s and will not be downloaded." % (make_unicode(linkurl), nodl_tag)
-        print(msg)
-        log.write(msg + "\n")
-        return False
+        dl_allowed = False
     elif options.usertag and not match_list(linktags, options.usertag):
         msg = "[shaarchiver] Link %s is NOT tagged %s and will not be downloaded." % (make_unicode(linkurl), options.usertag)
+        dl_allowed = False
+    elif match_list([linkurl], downloaded_urls) and not options.no_skip:
+        msg = "[shaarchiver] Link %s was already downloaded. Skipping." % make_unicode(linkurl)
+        dl_allowed = False
+    if not dl_allowed:
         print(msg)
         log.write(msg + "\n")
-        return False
-
-    else:
-        return True
+    return dl_allowed
 
 def gen_markdown(link): # Write markdown output to file
     tags = ""
     if len(link.tags) > 0:
         tags = ' @'
     tags += ' @'.join(link.tags)
-
     mdline = make_unicode(" * [" + link.title + "](" + link.href + ")" + "`" + tags + "`\n")
     markdown.write(mdline)
     if link.description != "":
@@ -222,70 +226,83 @@ def gen_markdown(link): # Write markdown output to file
     log.write("markdown generated for " + link.href + str(link.tags) + "\n")
 
 def download_page(linkurl, linktitle, linktags):
-    if check_dl(linktags, linkurl):
-        if link.is_magnet:
-            # We found a magnet link ! create a new file and write it
-            # Here's a lovely regex to retrieve the SHA hash from a magnet
-            # xt=.*:([^&]*)
-            # This works with the hash anywhere in the magnet, with btih: or sha1: schemes
-            matches = re.findall("xt=.*:([^&]*)", link.href)
-            if matches is None or len(matches) == 0:
-                msg = "[shaarchiver] Link appears to be a magnet, but no hash could be found. Not saving it"
-                print(msg)
-                log.write(msg + "\n")
-                pass
-            hash = matches[0]
-            msg = "[shaarchiver] Link is a magnet. Saving it to %s.magnet" % hash
-            print(msg)
-            handle = open(options.destdir + "/" + hash + ".magnet", "w+")
-            handle.write(link.href)
-            handle.close()
-            
-        elif match_list(linktags, force_page_download_for):
-            msg = "[shaarchiver] Force downloading page for %s" % linkurl
+    if link.is_magnet:
+        # We found a magnet link ! create a new file and write it
+        # Here's a lovely regex to retrieve the SHA hash from a magnet
+        # xt=.*:([^&]*)
+        # This works with the hash anywhere in the magnet, with btih: or sha1: schemes
+        matches = re.findall("xt=.*:([^&]*)", link.href)
+        if matches is None or len(matches) == 0:
+            msg = "[shaarchiver] Link appears to be a magnet, but no hash could be found. Not saving it"
             print(msg)
             log.write(msg + "\n")
-        elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
             pass
-            #msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
-            #print(msg)
-            #log.write(msg + "\n")
+        hash = matches[0]
+        msg = "[shaarchiver] Link is a magnet. Saving it to %s.magnet" % hash
+        print(msg)
+        handle = open(options.destdir + "/" + hash + ".magnet", "w+")
+        handle.write(link.href)
+        handle.close()
+    elif match_list(linktags, force_page_download_for):
+        msg = "[shaarchiver] Force downloading page for %s" % linkurl
+        print(msg)
+        log.write(msg + "\n")
+    elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
+        pass
+        #msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
+        #print(msg)
+        #log.write(msg + "\n")
+    else:
+        msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
+        print(msg)
+        log.write(msg + "\n")
+
+    if not options.no_skip:
+        log_done.write(linkurl + "\n")
+
+
+def download_video(linkurl, linktags):
+    if match_list(linktags, download_video_for):
+        msg = "[shaarchiver] Downloading video for %s" % linkurl
+        print(msg)
+        log.write(msg + "\n")
+        command = ["youtube-dl"] + ytdl_args + ["--format", "best",
+                "--output", options.destdir +  "/video/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
+                linkurl]
+        retcode = call(command)
+
+        if retcode == 0: # Log the URL as downloaded youtube-dl was successful
+            if not options.no_skip:
+                log_done.write(linkurl + "\n")
         else:
-            msg = "[shaarchiver] Simulating page download for %s. Not yet implemented TODO" % ((linkurl + linktitle).encode('utf-8'))
+            msg = "[shaarchiver] ERROR Download failed for %s" % linkurl
             print(msg)
             log.write(msg + "\n")
-
-
-
-def download_video(linkurl, linktags    ):
-    if check_dl(linktags, linkurl):
-        if match_list(linktags, download_video_for):
-            msg = "[shaarchiver] Downloading video for %s" % linkurl
-            print(msg)
-            log.write(msg + "\n")
-            command = ["youtube-dl"] + ytdl_args + ["--format", "best",
-                    "--output", options.destdir +  "/video/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
-                    linkurl]
-            call(command)
-
 
 
 def download_audio(linkurl, linktags):
-    if check_dl(linktags, linkurl):
-        if match_list(linktags, download_audio_for):
-            msg = "[shaarchiver] Downloading audio for %s" % linkurl
+    if match_list(linktags, download_audio_for):
+        msg = "[shaarchiver] Downloading audio for %s" % linkurl
+        print(msg)
+        log.write(msg + "\n")
+        if options.mp3 == True:
+            command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "mp3",
+                    "--output", options.destdir + "/audio/mp3/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
+                    linkurl]
+        else:
+            command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "best",
+                    "--output", options.destdir + "/audio/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
+                    linkurl]
+        retcode = call(command)
+
+        if retcode == 0: # Log the URL as downloaded youtube-dl was successful
+            if not options.no_skip:
+                log_done.write(linkurl + "\n")
+        else:
+            msg = "[shaarchiver] ERROR Download failed for %s" % linkurl
             print(msg)
             log.write(msg + "\n")
-            if options.mp3 == True:
-                command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "mp3",
-                        "--output", options.destdir + "/audio/mp3/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
-                        linkurl]
-                call(command)
-            else:
-                command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "best",
-                        "--output", options.destdir + "/audio/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
-                        linkurl]
-                call(command)
+        
 
 
 def debug_wait(msg):
@@ -317,12 +334,15 @@ for link in link_list:
         if options.compare_with_max and (linkdate > options.maximum_date_parsed):
             continue
 
-    download_page(link.href, link.title, link.tags)
-    download_video(link.href, link.tags)
-    download_audio(link.href, link.tags)
+    if check_dl(link.tags, link.href)
+        download_page(link.href, link.title, link.tags)
+        download_video(link.href, link.tags)
+        download_audio(link.href, link.tags)
+
     if options.markdown:
         gen_markdown(link)
 
 log.close()
+log_done.close()
 if options.markdown:
     markdown.close()

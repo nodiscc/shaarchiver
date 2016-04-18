@@ -20,19 +20,16 @@
 ## bookmarks-fetcher.py
 
 ```
-# TODO write successfully downloaded urls in done.log
-#      if link has already been downloaded, skip download (--skip)
-#      if link has already been downloaded, just check headers with curl/ytdl and issue a warning if page is gone.
-# TODO catch errors and write them in shaarchiver-errors-date.log
-# TODO escape special markdown characters when writing descriptions
-# TODO [doc] add examples blacklist entries for youtube channels, soundcloud streams...
+# TODO [maintenance] factorize code
+# TODO catch yt-dl errors and write them in log
+# TODO [doc] add example blacklist entries for youtube channels, soundcloud streams...
 # TODO download pages (wget, httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy, https://github.com/lorien/grab)
 #       https://superuser.com/questions/55040/save-a-single-web-page-with-background-images-with-wget
-# TODO if link has a numeric tag (d1, d2, d3), recursively follow links to htm,html,zip,png,jpg,wam,ogg,mp3,flac,avi,webm,ogv,mp4,pdf... restricted to the domain/directory and download them.
+# TODO if link has a numeric tag (d1, d2, d3)
+#      recursively follow links to htm,html,zip,png,jpg,wav,ogg,mp3,flac,avi,webm,ogv,mp4,pdf... restricted to the domain/directory and download them.
 # TODO if download fails due to "unsupported url", download page
-# TODO make sure links URIs are supported by wget (http(s) vs. javascript vs ftp)
-#      write   next to magnet links title
-# TODO use special downloaders/extractor when link url matches a pattern (https://github.com/alexgisby/imgur-album-downloader ...)
+# TODO write   next to magnet links title
+# TODO use special downloaders/extractor when link url matches a pattern (git repos, wp-uploads, https://github.com/alexgisby/imgur-album-downloader ...)
 # TODO write a link to the local, archived file after the URL  for pages,  for video,  for audio
 # TODO don't use --no-playlist when item is tagged playlist, album...
 # TODO build HTML index (don't use mdwiki)
@@ -52,9 +49,11 @@
 #       ability to mirror/re-post to other sites
 # TODO bugs at https://github.com/nodiscc/shaarchiver/issues
 # TODO support plain text (not html) lists
-# TODO scan for links/hashes/magnets inside description...
-# TODO also (optional) download links in dessriptions
+# TODO scan for links/hashes/magnets inside description
+#      (optional) download links in descriptions
 # TODO GUI https://ipfs.pics/ipfs/Qmd7vy36VqSE3PqVSdjTMA2apfeboe49oJkVspKGdLpFd9, see python-wxgtk
-# TODO add readability/page alteration features https://github.com/wallabag/wallabag/tree/master/inc/3rdparty/site_config
-# TODO support special archivers for some sites (some url patterns should trigger a custom command, album extraction, etc)
+# TODO add readability/page alteration features
+#      https://github.com/wallabag/wallabag/tree/master/inc/3rdparty/site_config
+#      less needed thanks to firefox reading mode, please test
+# TODO (?) escape special markdown characters when writing descriptions
 ```
