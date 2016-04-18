@@ -53,11 +53,13 @@ Options:
   -3, --mp3             Download audio as mp3 (or convert to mp3 after
                         download)
   -n, --no-download     do not download files
-  --min-date=MINIMUM_DATE earliest date from which the links should be exported
-                          (DD/MM/YYYY)
-  --max-date=MAXIMUM_DATE latest date from which the links should be exported
-                          (DD/MM/YYYY)
-
+  --min-date=MINIMUM_DATE
+                        earliest date from which the links should be exported
+                        (DD/MM/YYYY)
+  --max-date=MAXIMUM_DATE
+                        latest date from which the links should be exported
+                        (DD/MM/YYYY)
+  --no-skip             Do not skip downloading links present in done.log
 ```
 
 #### Configuration 
