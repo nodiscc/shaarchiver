@@ -3,6 +3,10 @@
 ## export-shaarli.py
 
 ```
+#TODO [BUG] this entry makes the script crash
+#     <DT><A HREF="http://www.poigneedemainvirile.com/" ADD_DATE="1459976848" PRIVATE="0" TAGS="webdesign">Poignée de main virile | Studio de design graphique et web - Nantes</A>
+#     Traceback: line 339 download_page() -> line 258, in download_page: log.write(msg + "\n")
+#     UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 83: ordinal not in range(128)
 #TODO merge script with bookmarks-fetcher.py
 #TODO: allow downloading links via RSS, if linktype=public, no password/username required
 #TODO:
