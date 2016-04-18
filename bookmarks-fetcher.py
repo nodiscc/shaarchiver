@@ -78,7 +78,7 @@ parser.add_option("--min-date", dest="minimum_date",
 parser.add_option("--max-date", dest="maximum_date",
                 action="store", type="string",
                 help="latest date from which the links should be exported (DD/MM/YYYY)")
-parser.add_option("--no-skip"), dest="no_skip",
+parser.add_option("--no-skip", dest="no_skip",
                 action="store_true", default="False",
                 help="Do not skip downloading links present in done.log")
 (options, args) = parser.parse_args()
