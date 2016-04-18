@@ -334,7 +334,7 @@ for link in link_list:
         if options.compare_with_max and (linkdate > options.maximum_date_parsed):
             continue
 
-    if check_dl(link.tags, link.href)
+    if check_dl(link.tags, link.href):
         download_page(link.href, link.title, link.tags)
         download_video(link.href, link.tags)
         download_audio(link.href, link.tags)
