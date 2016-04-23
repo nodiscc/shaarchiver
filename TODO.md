@@ -42,11 +42,9 @@
 # TODO Separate public/private link directories
 # TODO new action makeplaylist: create an m3U playlist for media, linking to the media url reported by youtube-dl --get-url
 # TODO filter ads from downloaded webpages (dnsmasq and host files)
-#       https://github.com/Andrwe/privoxy-blocklist/blob/master/privoxy-blocklist.sh
-#       patterns in ad-hosts.txt
-#       https://github.com/jacobsalmela/pi-hole
+#       https://github.com/nodiscc/hosts
+#       https://github.com/pi-hole/pi-hole/commits/master/adlists.default
 #       ublock hosts file list
-#       https://github.com/StevenBlack/hosts
 # TODO new action new action: upload to archive.org (public links only)
 #       saving pages to archive.org can be done with curl https://web.archive.org/save/$url
 #       add archive.org url to markdown output 'https://web.archive.org/web/' + item.get('href')
