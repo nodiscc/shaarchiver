@@ -316,7 +316,7 @@ except (IOError):
     parser.print_help()
     exit(1)
 
-## ?
+## Convert max/min date to date object
 options.compare_with_max = False
 options.compare_with_min = False
 options.should_compare_dates = False
@@ -370,8 +370,9 @@ if options.markdown:
     taglist = make_unicode(' '.join(get_all_tags(link_list)))
     markdown.write(make_unicode(u"```\n{0}\n```\n\n".format(taglist)))
 
-### ?
+### Loop over link list
 for link in link_list:
+    # If link date is out of selected time range, skip link
     if options.should_compare_dates:
         linkdate = date.fromtimestamp(float(link.get("add_date")))
         if options.compare_with_min and (linkdate < options.minimum_date_parsed):
@@ -379,11 +380,13 @@ for link in link_list:
         if options.compare_with_max and (linkdate > options.maximum_date_parsed):
             continue
 
+    # Check if link should be downloaded, download.
     if check_dl(link.tags, link.href):
         download_page(link.href, link.title, link.tags)
         download_video(link.href, link.tags)
         download_audio(link.href, link.tags)
 
+    # Generate markdown output
     if options.markdown:
         gen_markdown(link)
 
