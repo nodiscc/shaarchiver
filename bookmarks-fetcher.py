@@ -30,7 +30,6 @@ nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
 ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s' #naming pattern for downloaded media
 ytdl_args = [ #Youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
             "--no-playlist", 
-            "--flat-playlist",
             "--continue",
             "--max-filesize", "1200M",
             #"--rate-limit", "100K",
