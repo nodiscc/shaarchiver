@@ -34,7 +34,13 @@
 #      recursively follow links to htm,html,zip,png,jpg,wav,ogg,mp3,flac,avi,webm,ogv,mp4,pdf... restricted to the domain/directory and download them.
 # TODO if download fails due to "unsupported url", download page
 # TODO write   next to magnet links title
-# TODO use special downloaders/extractor when link url matches a pattern (git repos, wp-uploads, https://github.com/alexgisby/imgur-album-downloader ...)
+# TODO use special downloaders/extractor when link url matches a pattern 
+#    git repos
+#     use clone --shallow https://blogs.gnome.org/simos/2009/04/18/git-clones-vs-shallow-git-clones/
+#    wp-uploads
+#    mediawikis
+#     git clone mediawiki:// backend
+#    https://github.com/alexgisby/imgur-album-downloader
 # TODO write a link to the local, archived file after the URL  for pages,  for video,  for audio
 # TODO don't use --no-playlist when item is tagged playlist, album...
 # TODO build HTML index (don't use mdwiki)

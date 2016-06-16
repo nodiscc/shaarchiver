@@ -11,8 +11,7 @@ Work in progress - see [TODO.md](TODO.md)
 
 ### Installation
  * `git clone https://github.com/nodiscc/shaarchiver` or download and extract the [zip archive](https://github.com/nodiscc/shaarchiver/archive/master.zip)
- * install the required python modules: `python-bs4 python-requests`
-
+ * install the required modules and programs: `python-bs4 python-requests youtube-dl ffmpeg rtmpdump`. If `ffmpeg` is not available on your distribution (eg. Debian Jessie), you can install `libav-tools` instead.
 
 ### Usage
 #### Backup your Shaarli bookmarks as an HTML file
