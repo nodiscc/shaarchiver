@@ -34,6 +34,7 @@
 #      recursively follow links to htm,html,zip,png,jpg,wav,ogg,mp3,flac,avi,webm,ogv,mp4,pdf... restricted to the domain/directory and download them.
 # TODO if download fails due to "unsupported url", download page
 # TODO write   next to magnet links title
+#TODO support a config value `nommediadl_tag:` the program will never attempt to download media for items tagged with these tags. Defaults: "search,index,list"
 # TODO use special downloaders/extractor when link url matches a pattern 
 #    git repos
 #     use clone --shallow https://blogs.gnome.org/simos/2009/04/18/git-clones-vs-shallow-git-clones/
