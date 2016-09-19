@@ -35,13 +35,10 @@
 # TODO if download fails due to "unsupported url", download page
 # TODO write   next to magnet links title
 #TODO support a config value `nommediadl_tag:` the program will never attempt to download media for items tagged with these tags. Defaults: "search,index,list"
-# TODO use special downloaders/extractor when link url matches a pattern 
-#    git repos
-#     use clone --shallow https://blogs.gnome.org/simos/2009/04/18/git-clones-vs-shallow-git-clones/
-#    wp-uploads
-#    mediawikis
-#     git clone mediawiki:// backend
-#    https://github.com/alexgisby/imgur-album-downloader
+# TODO use special downloaders/extractor when link url matches a pattern or a tag
+#    git repos: use clone --shallow https://blogs.gnome.org/simos/2009/04/18/git-clones-vs-shallow-git-clones/
+#    mediawikis: git clone mediawiki:// backend
+#    imgur: https://github.com/alexgisby/imgur-album-downloader
 # TODO write a link to the local, archived file after the URL  for pages,  for video,  for audio
 # TODO don't use --no-playlist when item is tagged playlist, album...
 # TODO build HTML index (don't use mdwiki)
