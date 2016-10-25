@@ -74,7 +74,7 @@ response = fetcher.post(options.url + '/?do=login', data=data, verify=False) #TO
 
 
 #Get bookmarks
-response = fetcher.get(options.url + '?do=export&what=' + options.linktype, verify=False)
+response = fetcher.get(options.url + '?do=export&selection=' + options.linktype, verify=False)
 outfile = open(outfilename, 'w+')
 outfile.write(response.text.encode('utf-8'))
 outfile.close
