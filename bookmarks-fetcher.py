@@ -230,7 +230,7 @@ def download_audio(linkurl, linktags):
         log.write(msg + "\n")
         if options.mp3 == True:
             command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "mp3",
-                    "--output", options.destdir + "/audio/mp3/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
+                    "--output", options.destdir + "/audio/" + "[" + ','.join(link.tags) + "]" + ytdl_naming,
                     linkurl]
         else:
             command = ["youtube-dl"] + ytdl_args + ["--extract-audio", "--audio-format", "best",
@@ -335,6 +335,7 @@ try:
     os.makedirs(options.destdir)
     os.makedirs(options.destdir + "/video")
     os.makedirs(options.destdir + "/audio")
+    os.makedirs(options.destdir + "/audio/mp3")
     os.makedirs(options.destdir + "/pages")
 except:
     pass
