@@ -34,8 +34,6 @@ Options:
 
 #### Archive contents (pages, audio, video) for links in the HTML file
 
-
-
 Run `bookmarks-fetcher.py` with appropriate options:
 
 ```
@@ -61,33 +59,10 @@ Options:
   --no-skip             Do not skip downloading links present in done.log
 ```
 
-#### Configuration 
+#### Configuration
 
-Edit the config variables in `bookmarks-fetcher.py` if needed.
-
-```python
-#Config
-download_video_for = ["video", "documentaire"] # get video content for links with these tags
-download_audio_for = ["musique", "music", "samples"] # get audio content for links with these tags
-force_page_download_for = ["index", "doc", "lecture"] # force downloading page even if we found a media link
-nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
-ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s' #naming pattern for downloaded media
-ytdl_args = [ #Youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
-            "--no-playlist", 
-            "--flat-playlist",
-            "--continue",
-            "--max-filesize", "1200M",
-            #"--rate-limit", "100K",
-            "--ignore-errors",
-            "--console-title",
-            "--add-metadata"]
-url_blacklist = [ #links with these exact urls will not be downloaded
-                "http://www.midomi.com/",  #workaround for broken redirect
-                "http://broadcast.infomaniak.net/radionova-high.mp3", #prevents downloading live radio stream
-                "https://en.wikipedia.org/wiki/Youtube", #prevents downloading wikipedia spoken article
-                "http://bandcamp.com/", "https://vimeo.com/", "https://www.youtube.com", "https://soundcloud.com" #don't try to download the site index
-                ]
-```
+ * **Configuration:** Edit the configuration values directly in `bookmarks-fetcher.py` if needed.
+ * **I want to use custom destination directories for audio/video files:** Create symbolic links pointing `backups/audio/` and `backups/video/` to your media directories.
 
 #### Bugs/feature requests/discussion/submit patches
  * See `TODO` entries in `bookmark-fetcher.py`

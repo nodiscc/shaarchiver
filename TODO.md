@@ -66,3 +66,5 @@
 #      less needed thanks to firefox reading mode, please test
 # TODO (?) escape special markdown characters when writing descriptions
 ```
+
+TODO export-shaarli: verify that the target url is a shaarli instance, throw error otherwise
