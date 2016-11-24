@@ -23,12 +23,21 @@ Link = namedtuple("Link", "add_date href private tags title description is_magne
 ########################################
 ### Configuration ######################
 
-download_video_for = ["video", "documentaire"] # get video content for links with these tags
-download_audio_for = ["musique", "music", "samples"] # get audio content for links with these tags
-force_page_download_for = ["index", "doc", "lecture"] # force downloading page even if we found a media link
-nodl_tag = ["nodl"] # items tagged with this tag will not be downloaded
-ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s' #naming pattern for downloaded media
-ytdl_args = [ #Youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
+# download video content for links with these tags
+download_video_for = ["video", "documentaire"]
+# download audio content for links with these tags
+download_audio_for = ["musique", "music", "samples"]
+# download full pages for links with these tags, even for audio/video links
+force_page_download_for = ["index", "doc", "lecture"]
+# items tagged with this tag will not be downloaded
+nodl_tag = ["nodl"]
+# when a link is tagged d1, d2, or d3, recursively download all linked files with these extensions:
+recurse_extensions = [ "htm", "html", "zip", "png", "jpg", "jpeg", "wav", "ogg", "mp3",
+                       "flac", "avi", "webm", "ogv", "mp4", "pdf" ]
+# naming pattern for downloaded media, see youtube-dl manual
+ytdl_naming='%(title)s-%(extractor)s-%(playlist_id)s%(id)s.%(ext)s'
+# youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cgi?query=youtube-dl
+ytdl_args = [
             "--no-playlist", 
             "--continue",
             "--max-filesize", "1200M",
@@ -36,7 +45,8 @@ ytdl_args = [ #Youtube-dl options, see http://manpages.debian.org/cgi-bin/man.cg
             "--ignore-errors",
             "--console-title",
             "--add-metadata"]
-url_blacklist = [ #links with these exact urls will not be downloaded
+# links with these exact urls will not be downloaded
+url_blacklist = [
                 "http://www.midomi.com/",  #workaround for broken redirect
                 "http://broadcast.infomaniak.net/radionova-high.mp3", #prevents downloading live radio stream
                 "https://en.wikipedia.org/wiki/Youtube", #prevents downloading wikipedia spoken article
@@ -94,6 +104,9 @@ def getlinktags(link):
     return linktags
 
 def get_link_list(links):
+    """
+    Return a list of all links with their attributes href, private, tags, title, description, is_magnet (list)
+    """
     item_count = len(links)
     link_list = list()
     for i in range(0, item_count):
@@ -185,8 +198,8 @@ def download_page(linkurl, linktitle, linktags):
         log.write(msg + "\n")
     elif match_list(linktags, download_video_for) or match_list(linktags, download_audio_for):
         pass
-        #msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
-        #print(msg)
+        msg = "[shaarchiver] %s will only be searched for media. Not downloading page" % linkurl
+        print(msg)
         #log.write(msg + "\n")
     else:
         msg = "[shaarchiver] Simulating page download for %s" % linkurl
