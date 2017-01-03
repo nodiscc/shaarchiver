@@ -28,11 +28,20 @@
 # TODO catch yt-dl errors and write them in log
 # TODO [doc] add example blacklist entries for youtube channels, soundcloud streams...
 # TODO download pages (httrack with −%M generate a RFC MIME−encapsulated full−archive (.mht) (−−mime−html), pavuk, scrapy, https://github.com/lorien/grab)
-#		httrack -f2 --list /home/bsp/DOC/DEV/shaarchiver/urllist.txt --continue  --verbose --robots=0 --index --depth=1 --ext-depth=1 --near \
-#			--user-agent "Mozilla/5.0 (Windows NT 6.1; rv:49.0) Gecko/20100101 Firefox/49.0" \
-#			-* +*.png +*.jpg +*.css +*.js
+#		httrack --single-log
+#              --list /home/bsp/DOC/DEV/shaarchiver/urllist.txt
+#              --continue
+#              --verbose
+#              --robots=0
+#              --index
+#              --depth=1
+#              --ext-depth=1
+#              --near \
+#              --user-agent "Mozilla/5.0 (Windows NT 6.1; rv:49.0) Gecko/20100101 Firefox/49.0" \
+#              -* +*.png +*.jpg +*.gif +*.css +*.js
 # TODO if link has a numeric tag (d1, d2, d3)
-#      recursively follow links to htm,html,zip,png,jpg,wav,ogg,mp3,flac,avi,webm,ogv,mp4,pdf... restricted to the domain/directory and download them.
+#      recursively follow links to htm,html,zip,png,jpg,wav,ogg,mp3,flac,avi,webm,ogv,mp4,pdf... 
+#      restricted to the domain/directory and download them.
 # TODO if download fails due to "unsupported url", download page
 # TODO write   next to magnet links title
 #TODO support a config value `nommediadl_tag:` the program will never attempt to download media for items tagged with these tags. Defaults: "search,index,list"
