@@ -27,7 +27,10 @@ parser.add_option("--password", dest="password",
                 help="password for HTML and private links export", metavar="PASSWORD")
 parser.add_option("-d", "--download-dir", dest="downloaddir",
                 action="store", type="string",
-                help="destination directory for bookmark backups")
+                help="destination directory for bookmark backups (\"-\" for stdout)")
+parser.add_option("-f", "--filename", dest="outfilename",
+                action="store", type="string",
+                help="filename for bookmark backups")
 parser.add_option("-u", "--url", dest="url",
                 action="store", type="string",
                 help="URL of your Shaarli (https://my.example.com/links)", metavar="URL")
@@ -57,13 +60,19 @@ downloaddir_exists = os.access(options.downloaddir, os.F_OK)
 if downloaddir_exists == False:
     os.makedirs(options.downloaddir)
 
-curdate = time.strftime('%Y-%m-%d_%H%M')
-outfilename = options.downloaddir + "bookmarks-all_" + curdate + ".html"
+outfilename = None
+if options.outfilename is None:
+    curdate = time.strftime('%Y-%m-%d_%H%M')
+    outfilename = os.path.join(options.downloaddir, "bookmarks-all_" + curdate + ".html")
+elif options.outfilename == "-":
+    outfilename = "-"
+else:
+    outfilename = os.path.join(options.downloaddir, options.outfilename)
 
 #### Open a session to store the cookie, get the login page, and extract the token from HTML
 fetcher = requests.Session()
 response=fetcher.get(options.url + '/?do=login', verify=False)
-html = BeautifulSoup(response.text)
+html = BeautifulSoup(response.text, "lxml")
 html_token = html.find_all('input', { "name" : "token" })
 token = html_token[0].get('value')
 
@@ -75,8 +84,10 @@ response = fetcher.post(options.url + '/?do=login', data=data, verify=False) #TO
 
 #Get bookmarks
 response = fetcher.get(options.url + '?do=export&selection=' + options.linktype, verify=False)
-outfile = open(outfilename, 'w+')
-outfile.write(response.text.encode('utf-8'))
-outfile.close
+if outfilename == "-":
+    print response.text.encode('utf-8')
+else:
+    outfile = open(outfilename, 'w+')
+    outfile.write(response.text.encode('utf-8'))
+    outfile.close
 
-print("bookmark export written to %s !" % outfilename)
