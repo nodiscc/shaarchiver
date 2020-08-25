@@ -64,7 +64,6 @@
 #       add archive.org url to markdown output 'https://web.archive.org/web/' + item.get('href')
 #       Uploading media to archive.org can be done with https://github.com/Famicoman/ia-ul-from-youtubedl
 #       ability to mirror/re-post to other sites
-# TODO bugs at https://github.com/nodiscc/shaarchiver/issues
 # TODO support plain text (not html) lists
 # TODO scan for links/hashes/magnets inside description
 #      (optional) download links in descriptions
