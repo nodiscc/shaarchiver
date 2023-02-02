@@ -30,16 +30,17 @@ steps:
   - name: import data shaarli from shaarli API JSON
     module: importers/shaarli_api
     module_options:
-      source_file: shaarli-export.json
-      output_file: shaarli.yml
+      source_file: tests/shaarli.json
+      output_file: tests/shaarli.yml
+      skip_existing: True # optional, default True
 
   - name: download video files
     module: processors/download_media
     module_options:
-      data_file: shaarli.yml
+      data_file: tests/shaarli.yml
       only_tags: ['video']
       exclude_tags: ['nodl'] # optional, don't download items tagged with any of these tags
-      output_directory: '/path/to/video/directory'
+      output_directory: 'tests/video'
       download_playlists: False # optional, default False
       skip_when_filename_present: False # optional, default False
       retry_items_with_error: True # optional, default True
@@ -47,12 +48,20 @@ steps:
   - name: download audio files
     module: processors/download_media
     module_options:
-      data_file: shaarli.yml
+      data_file: tests/shaarli.yml
       only_tags: ['music']
       exclude_tags: ['nodl']
-      output_directory: '/path/to/audio/directory'
+      output_directory: 'tests/audio'
       only_audio: True
-```
+
+  - name: check URLs
+    module: processors/url_check
+    module_options:
+      source_files:
+        - /home/live/Nextcloud/data/shaarli.yml
+      check_keys:
+        - url
+      errors_are_fatal: True```
 ```bash
 # run the program
 hecat -c .hecat.yml
