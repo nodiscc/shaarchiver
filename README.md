@@ -61,7 +61,8 @@ steps:
         - shaarli.yml
       check_keys:
         - url
-      errors_are_fatal: True```
+      errors_are_fatal: True
+```
 ```bash
 # run the program
 hecat -c .hecat.yml
