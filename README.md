@@ -32,6 +32,7 @@ steps:
     module_options:
       source_file: shaarli-export.json
       output_file: shaarli.yml
+      skip_existing: True # optional, default True
 
   - name: download video files
     module: processors/download_media
@@ -52,6 +53,15 @@ steps:
       exclude_tags: ['nodl']
       output_directory: '/path/to/audio/directory'
       only_audio: True
+
+  - name: check URLs
+    module: processors/url_check
+    module_options:
+      source_files:
+        - shaarli.yml
+      check_keys:
+        - url
+      errors_are_fatal: True
 ```
 ```bash
 # run the program
