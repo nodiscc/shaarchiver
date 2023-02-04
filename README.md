@@ -64,6 +64,8 @@ steps:
       check_keys:
         - url
       errors_are_fatal: True
+      exclude_regex:
+        - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos
 ```
 ```bash
 # run the program
