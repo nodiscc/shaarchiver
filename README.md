@@ -27,7 +27,7 @@ nano .hecat.yml
 ```
 ```yaml
 steps:
-  - name: import data shaarli from shaarli API JSON
+  - name: import data from shaarli API JSON
     module: importers/shaarli_api
     module_options:
       source_file: shaarli-export.json
