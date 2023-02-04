@@ -54,9 +54,6 @@ steps:
       only_tags: ['music']
       exclude_tags: ['nodl']
       output_directory: '/path/to/audio/directory'
-      download_playlists: False
-      skip_when_filename_present: True
-      retry_items_with_error: True
       only_audio: True # (default False) download the 'bestaudio' format instead of the default 'best'
 
   - name: check URLs
