@@ -34,6 +34,8 @@ steps:
       output_file: shaarli.yml
       skip_existing: True # (default True) skip importing items whose 'url:' already exists in the output file
       clean_removed: False # (default False) remove items from the output file, whose 'url:' was not found in the input file
+      sort_by: created # (default 'created') key by which to sort the output list
+      sort_reverse: True # (default True) sort the output list in reverse order
 
 - name: download video files
     module: processors/download_media
