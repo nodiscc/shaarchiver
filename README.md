@@ -21,7 +21,7 @@ secret = AAAbbbZZZvvvSSStttUUUvvVXYZ
 ```
 ```bash
 # download data from the API to a file
-shaarli get-links --limit=all >| shaarli-export.json
+shaarli --outfile shaarli-export.json get-links --limit=all
 # create configuration file for hecat
 nano .hecat.yml
 ```
