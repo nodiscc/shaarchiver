@@ -69,7 +69,7 @@ steps:
       exclude_regex:
         - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos
 
-- name: export shaarli data to HTML table
+  - name: export shaarli data to HTML table
     module: exporters/html_table
     module_options:
       source_file: shaarli.yml # file from which data will be loaded
