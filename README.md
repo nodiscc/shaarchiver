@@ -68,6 +68,14 @@ steps:
       errors_are_fatal: True
       exclude_regex:
         - '^https://www.youtube.com/watch.*$' # don't check youtube video URLs, always returns HTTP 200 even for unavailable videos
+
+- name: export shaarli data to HTML table
+    module: exporters/html_table
+    module_options:
+      source_file: shaarli.yml # file from which data will be loaded
+      output_file: index.html # (default index.html) output HTML table file
+      html_title: "Shaarli export - shaarli.example.org" # (default "hecat HTML export") output HTML title
+      description_format: paragraph # (details/paragraph, default details) wrap the description in a HTML details tag
 ```
 ```bash
 # run the program
